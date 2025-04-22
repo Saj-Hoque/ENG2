@@ -3,7 +3,7 @@ package uk.ac.york.eng2.products.dto;
 import io.micronaut.serde.annotation.Serdeable;
 
 @Serdeable
-public class ProductDTO {
+public class ProductCreateDTO {
     private String name;
     private Float unitPrice;
 

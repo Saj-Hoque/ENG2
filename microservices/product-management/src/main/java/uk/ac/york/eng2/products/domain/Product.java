@@ -1,10 +1,12 @@
 package uk.ac.york.eng2.products.domain;
 
+import io.micronaut.serde.annotation.Serdeable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
+@Serdeable
 @Entity
 public class Product {
 
