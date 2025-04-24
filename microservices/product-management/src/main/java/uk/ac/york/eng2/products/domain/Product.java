@@ -1,10 +1,11 @@
 package uk.ac.york.eng2.products.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.micronaut.serde.annotation.Serdeable;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Serdeable
 @Entity
@@ -20,6 +21,11 @@ public class Product {
     @Column
     private Float unitPrice;
 
+    @JsonIgnore
+    @ManyToMany
+    private Set<Tag> tags = new HashSet<>();
+
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -28,4 +34,7 @@ public class Product {
 
     public Float getUnitPrice() { return unitPrice; }
     public void setUnitPrice(Float unitPrice) { this.unitPrice = unitPrice; }
+
+    public Set<Tag> getTags() { return tags; }
+    public void setTags(Set<Tag> tags) { this.tags = tags; }
 }
