@@ -19,19 +19,19 @@ import java.util.*;
 public class ProductsController {
 
     @Inject
-    private ProductRepository repository;
+    private ProductRepository productRepository;
 
 
     // List all products
     @Get
     public List<Product> getProducts() {
-        return repository.findAll();
+        return productRepository.findAll();
     }
 
     // Retrieve product by id
     @Get("/{id}")
     public Product getProduct(@PathVariable Long id) {
-        return repository.findById(id).orElse(null);
+        return productRepository.findById(id).orElse(null);
     }
 
 
@@ -42,7 +42,7 @@ public class ProductsController {
         Product product = new Product();
         product.setName(dto.getName());
         product.setUnitPrice(dto.getUnitPrice());
-        product = repository.save(product);
+        product = productRepository.save(product);
         return HttpResponse.created(URI.create("/products/" + product.getId()));
     }
 
@@ -52,22 +52,22 @@ public class ProductsController {
     @Transactional
     @Put("/{id}")
     public void updateProduct(@Body ProductCreateDTO dto, @PathVariable Long id) {
-        @NonNull Optional<Product> oProduct = repository.findById(id);
+        @NonNull Optional<Product> oProduct = productRepository.findById(id);
         if (oProduct.isEmpty()) {
             throw new HttpStatusException(HttpStatus.NOT_FOUND, "Product not found");
         }
         Product product = oProduct.get();
         product.setName(dto.getName());
         product.setUnitPrice(dto.getUnitPrice());
-        repository.save(product);
+        productRepository.save(product);
     }
 
     // Delete a product (by id)
 
     @Delete("/{id}")
     public void deleteProduct(@PathVariable Long id) {
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
+        if (productRepository.existsById(id)) {
+            productRepository.deleteById(id);
         } else {
             throw new HttpStatusException(HttpStatus.NOT_FOUND, "Product not found");
         }
