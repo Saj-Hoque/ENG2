@@ -62,3 +62,4 @@ micronaut {
         // add OpenAPI configuration here
     }
 }
+

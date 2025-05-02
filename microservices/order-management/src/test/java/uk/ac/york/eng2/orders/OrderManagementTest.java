@@ -18,4 +18,9 @@ class OrderManagementTest {
         Assertions.assertTrue(application.isRunning());
     }
 
+    @Test
+    void mainMethodRuns() {
+        Application.main(new String[]{});
+    }
+
 }
