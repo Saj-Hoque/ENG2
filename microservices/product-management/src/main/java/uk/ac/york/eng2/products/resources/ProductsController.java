@@ -30,7 +30,7 @@ public class ProductsController {
 
     private record ProductTag (Tag tag, Product product) {}
 
-    private ProductTag getProductTag(Long productId, Long tagId) {
+    private ProductTag retrieveProductTags(Long productId, Long tagId) {
         @NonNull Optional<Tag> oTag = tagRepository.findById(tagId);
         if (oTag.isEmpty()) {
             throw new HttpStatusException(HttpStatus.NOT_FOUND, "Tag not found");
@@ -97,7 +97,7 @@ public class ProductsController {
     @Transactional
     @Put ("/{id}/tags/{tagId}")
     public void addProductTag(@PathVariable Long id, @PathVariable Long tagId) {
-        ProductTag result = getProductTag(id, tagId);
+        ProductTag result = retrieveProductTags(id, tagId);
         result.product.getTags().add(result.tag);
         productRepository.save(result.product);
     }
@@ -116,7 +116,7 @@ public class ProductsController {
     // Delete tag from product (by id)
     @Delete("/{id}/tags/{tagId}")
     public void removeProductTag(@PathVariable Long id, @PathVariable Long tagId) {
-        ProductTag result = getProductTag(id, tagId);
+        ProductTag result = retrieveProductTags(id, tagId);
         result.product.getTags().remove(result.tag);
         productRepository.save(result.product);
     }
