@@ -36,7 +36,7 @@ public class CustomersControllerTest {
     }
 
 
-    // Test that customersRepository is empty.
+    // Test that customerRepository is empty.
     @Test
     public void noCustomers() {
         assertEquals(0, customersClient.getCustomers().size());
@@ -70,7 +70,7 @@ public class CustomersControllerTest {
     // Test retrieving a customer with a missing Id
     @Test
     public void fetchMissingCustomer() {
-        assertNull(customersClient.getCustomer(999L));
+        assertNull(customersClient.getCustomer(123L));
     }
 
     // Test updating a customers details and verifying these values have changed accordingly
@@ -101,7 +101,7 @@ public class CustomersControllerTest {
         c.setFirstName("Test");
         c.setFamilyName("Test");
 
-        HttpResponse response = customersClient.updateCustomer(c, 999L);
+        HttpResponse response = customersClient.updateCustomer(c, 123L);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
     }
 
@@ -121,7 +121,7 @@ public class CustomersControllerTest {
     // Test deleting a non-existent customer returns 404 Not Found
     @Test
     public void deleteMissingCustomer() {
-        HttpResponse response = customersClient.deleteCustomer(999L);
+        HttpResponse response = customersClient.deleteCustomer(123L);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
     }
 

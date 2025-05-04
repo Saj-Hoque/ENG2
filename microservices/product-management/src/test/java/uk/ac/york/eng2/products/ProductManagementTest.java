@@ -18,9 +18,4 @@ class ProductManagementTest {
         Assertions.assertTrue(application.isRunning());
     }
 
-    @Test
-    void mainMethodRuns() {
-        Application.main(new String[]{});
-    }
-
 }

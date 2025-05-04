@@ -28,9 +28,9 @@ public class ProductsController {
     @Inject
     private TagRepository tagRepository;
 
-    private record ProductTag (Tag tag, Product product) {}
+    public record ProductTag (Tag tag, Product product) {}
 
-    private ProductTag retrieveProductTags(Long productId, Long tagId) {
+    public ProductTag retrieveProductTags(Long productId, Long tagId) {
         @NonNull Optional<Tag> oTag = tagRepository.findById(tagId);
         if (oTag.isEmpty()) {
             throw new HttpStatusException(HttpStatus.NOT_FOUND, "Tag not found");
@@ -42,7 +42,6 @@ public class ProductsController {
             throw new HttpStatusException(HttpStatus.NOT_FOUND, "Product not found");
         }
         Product product = oProduct.get();
-
         return new ProductTag(tag, product);
     }
 
@@ -113,6 +112,7 @@ public class ProductsController {
         }
     }
 
+    @Transactional
     // Delete tag from product (by id)
     @Delete("/{id}/tags/{tagId}")
     public void removeProductTag(@PathVariable Long id, @PathVariable Long tagId) {

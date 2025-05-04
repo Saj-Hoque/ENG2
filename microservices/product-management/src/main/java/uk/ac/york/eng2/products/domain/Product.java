@@ -36,5 +36,6 @@ public class Product {
     public void setUnitPrice(Float unitPrice) { this.unitPrice = unitPrice; }
 
     public Set<Tag> getTags() { return tags; }
-    public void setTags(Set<Tag> tags) { this.tags = tags; }
+//    public void setTags(Set<Tag> tags) { this.tags = tags; }
+//  Tags are added or removed individually rather than replacing the entire set
 }

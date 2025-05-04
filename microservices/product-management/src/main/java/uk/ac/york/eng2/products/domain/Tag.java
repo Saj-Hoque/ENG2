@@ -29,5 +29,6 @@ public class Tag {
     public void setName(String name) { this.name = name; }
 
     public Set<Product> getProducts() { return products; }
-    public void setProducts(Set<Product> products) { this.products = products; }
+//    public void setProducts(Set<Product> products) { this.products = products; }
+//  Only the owning side (Product) of an M-M relationship should manage products.
 }
