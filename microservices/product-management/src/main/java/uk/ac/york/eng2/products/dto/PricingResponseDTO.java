@@ -14,7 +14,6 @@ public class PricingResponseDTO {
         private Long productId;
         private Float unitPrice;
         private Integer quantity;
-        private Float productTotalPrice;
 
         public Long getProductId() { return productId; }
         public void setProductId(Long productId) { this.productId = productId; }
@@ -24,9 +23,6 @@ public class PricingResponseDTO {
 
         public Integer getQuantity() { return quantity; }
         public void setQuantity(Integer quantity) { this.quantity = quantity; }
-
-        public Float getProductTotalPrice() { return productTotalPrice; }
-        public void setProductTotalPrice(Float productTotalPrice) { this.productTotalPrice = productTotalPrice; }
     }
 
     public Float getOrderTotalPrice() { return orderTotalPrice; }

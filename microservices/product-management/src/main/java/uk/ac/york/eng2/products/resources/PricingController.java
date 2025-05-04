@@ -55,7 +55,6 @@ public class PricingController {
             productPrice.setProductId(productId);
             productPrice.setQuantity(quantity);
             productPrice.setUnitPrice(unitPrice);
-            productPrice.setProductTotalPrice(productTotalPrice);
 
             // Add current product price to list of product prices
             productPrices.add(productPrice);
