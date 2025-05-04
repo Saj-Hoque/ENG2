@@ -19,7 +19,7 @@ public interface ProductsClient {
     Product getProduct(@PathVariable Long id);
 
     @Get("/{id}/tags")
-    List<Tag> getProductTags(@PathVariable Long id);
+    HttpResponse<List<Tag>> getProductTags(@PathVariable Long id);
 
     @Post
     HttpResponse<Void> createProduct(@Body ProductCreateDTO dto);

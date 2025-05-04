@@ -54,7 +54,7 @@ public class CustomersControllerTest {
         assertEquals(1, customersClient.getCustomers().size());
     }
 
-    // Test retrieving a customer by Id
+    // Test retrieving a customer by ID
     @Test
     public void fetchCustomerById() {
         CustomerCreateDTO c = new CustomerCreateDTO();
@@ -67,7 +67,7 @@ public class CustomersControllerTest {
         assertEquals(c.getEmail(), fetchedCustomer.getEmail());
     }
 
-    // Test retrieving a customer with a missing Id
+    // Test retrieving a customer with a missing ID
     @Test
     public void fetchMissingCustomer() {
         assertNull(customersClient.getCustomer(123L));

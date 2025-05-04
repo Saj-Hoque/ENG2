@@ -28,9 +28,9 @@ public class ProductsController {
     @Inject
     private TagRepository tagRepository;
 
-    public record ProductTag (Tag tag, Product product) {}
+    private record ProductTag (Tag tag, Product product) {}
 
-    public ProductTag retrieveProductTags(Long productId, Long tagId) {
+    private ProductTag retrieveProductTags(Long productId, Long tagId) {
         @NonNull Optional<Tag> oTag = tagRepository.findById(tagId);
         if (oTag.isEmpty()) {
             throw new HttpStatusException(HttpStatus.NOT_FOUND, "Tag not found");
@@ -64,8 +64,14 @@ public class ProductsController {
 
     // List all tags of product (by id)
     @Get("/{id}/tags")
-    public List<Tag> getProductTags(@PathVariable Long id) {
-        return tagRepository.findByProductsId(id);
+    public HttpResponse<List<Tag>> getProductTags(@PathVariable Long id) {
+        Optional<Product> product = productRepository.findById(id);
+        if (product.isEmpty()) {
+            throw new HttpStatusException(HttpStatus.NOT_FOUND, "Product not found");
+        }
+        // If the product exists, return the tags associated with the product
+        List<Tag> tags = tagRepository.findByProductsId(id);
+        return HttpResponse.ok(tags);
     }
 
     // Create a new product

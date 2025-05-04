@@ -1,6 +1,5 @@
 package uk.ac.york.eng2.products.resources;
 
-import io.micronaut.core.annotation.NonNull;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -11,12 +10,10 @@ import org.junit.jupiter.api.Test;
 import uk.ac.york.eng2.products.domain.Product;
 import uk.ac.york.eng2.products.domain.Tag;
 import uk.ac.york.eng2.products.dto.ProductCreateDTO;
-import uk.ac.york.eng2.products.dto.TagCreateDTO;
 import uk.ac.york.eng2.products.repository.ProductRepository;
 import uk.ac.york.eng2.products.repository.TagRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,7 +61,7 @@ public class ProductsControllerTest {
         assertEquals(1, productsClient.getProducts().size());
     }
 
-    // Test retrieving a product by Id
+    // Test retrieving a product by ID
     @Test
     public void fetchProductById() {
         ProductCreateDTO p = new ProductCreateDTO();
@@ -76,7 +73,7 @@ public class ProductsControllerTest {
         assertEquals(p.getName(), fetchedProduct.getName());
     }
 
-    // Test retrieving a product with a missing Id
+    // Test retrieving a product with a missing ID
     @Test
     public void fetchMissingProduct() {
         assertNull(productsClient.getProduct(123L));
@@ -129,7 +126,7 @@ public class ProductsControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
     }
 
-    // Test adding and removing product tags to a product, retrieve added tags to verify tagRepository is updated accordingly
+    // Test adding and removing tags to a product, retrieve added tags to verify product is updated accordingly
     @Test
     public void listProductTags() {
         ProductCreateDTO p = new ProductCreateDTO();
@@ -137,20 +134,28 @@ public class ProductsControllerTest {
         p.setUnitPrice(1.23F);
         Long productId = createProduct(p);
 
-        assertEquals(0, productsClient.getProductTags(productId).size());
+        assertEquals(0, productsClient.getProductTags(productId).body().size());
 
         Tag tag = new Tag();
         tag.setName("test tag");
         tag = tagRepository.save(tag);
-
         productsClient.addProductTag(productId, tag.getId());
-        List<Tag> tags = productsClient.getProductTags(productId);
+
+        HttpResponse<List<Tag>> response = productsClient.getProductTags(productId);
+        List<Tag> tags = response.body();
         assertEquals(1, tags.size());
         assertEquals(tag.getId(), tags.get(0).getId());
 
         productsClient.removeProductTag(productId, tag.getId());
-        assertEquals(0, productsClient.getProductTags(productId).size());
+        assertEquals(0, productsClient.getProductTags(productId).body().size());
 
+    }
+
+    // Test listing tags of non-existing product
+    @Test
+    public void listProductTagsMissingProduct() {
+        HttpResponse<List<Tag>> tags = productsClient.getProductTags(123L);
+        assertEquals(HttpStatus.NOT_FOUND, tags.getStatus());
     }
 
     // Test adding or removing a non-existent tag to a product returns 404 Not Found

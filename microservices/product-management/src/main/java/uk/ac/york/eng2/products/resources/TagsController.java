@@ -42,8 +42,14 @@ public class TagsController {
 
     // List all products of tag (by id)
     @Get("/{id}/products")
-    public List<Product> getProducts(@PathVariable Long id) {
-        return productRepository.findByTagsId(id);
+    public HttpResponse<List<Product>>  getTagProducts(@PathVariable Long id) {
+        Optional<Tag> tag = tagRepository.findById(id);
+        if (tag.isEmpty()) {
+            throw new HttpStatusException(HttpStatus.NOT_FOUND, "Tag not found");
+        }
+        // If the tag exists, return the products associated with the tag
+        List<Product> products = productRepository.findByTagsId(id);
+        return HttpResponse.ok(products);
     }
 
 
