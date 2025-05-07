@@ -8,8 +8,10 @@ import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import uk.ac.york.eng2.orders.domain.Customer;
+import uk.ac.york.eng2.orders.domain.Order;
 import uk.ac.york.eng2.orders.dto.CustomerCreateDTO;
 import uk.ac.york.eng2.orders.repository.CustomerRepository;
+import uk.ac.york.eng2.orders.repository.OrderRepository;
 
 import java.net.URI;
 import java.util.List;
@@ -22,6 +24,8 @@ public class CustomersController {
 
     @Inject
     private CustomerRepository customerRepository;
+    @Inject
+    private OrderRepository orderRepository;
 
     // List all customers
     @Get
@@ -35,9 +39,29 @@ public class CustomersController {
         return customerRepository.findById(id).orElse(null);
     }
 
+    // Retrieve orders of customer
+    @Get("/{id}/orders")
+    public HttpResponse<List<Order>> getCustomerOrders(@PathVariable Long id) {
+
+        Optional<Customer> customer = customerRepository.findById(id);
+        if (customer.isEmpty()) {
+            throw new HttpStatusException(HttpStatus.NOT_FOUND, "Customer not found");
+        }
+        // If the customer exists, return the orders associated with the customer
+        List<Order> orders = orderRepository.findByCustomerId(id);;
+        return HttpResponse.ok(orders);
+
+    }
+
     // Create a new customer
     @Post
     public HttpResponse<Void> createCustomer(@Body CustomerCreateDTO dto) {
+
+        @NonNull Optional<Customer> existingCustomer = customerRepository.findByEmail(dto.getEmail());
+        if (existingCustomer.isPresent()) {
+            throw new HttpStatusException(HttpStatus.CONFLICT, "Email already exists");
+        }
+
         Customer customer = new Customer();
         customer.setEmail(dto.getEmail());
         customer.setFirstName(dto.getFirstName());
@@ -54,6 +78,12 @@ public class CustomersController {
         if (oCustomer.isEmpty()) {
             throw new HttpStatusException(HttpStatus.NOT_FOUND, "Customer not found");
         }
+
+        @NonNull Optional<Customer> customerWithEmail = customerRepository.findByEmail(dto.getEmail());
+        if (customerWithEmail.isPresent() && !customerWithEmail.get().getId().equals(id)) {
+            throw new HttpStatusException(HttpStatus.CONFLICT, "Email already exists");
+        }
+
         Customer customer = oCustomer.get();
         customer.setEmail(dto.getEmail());
         customer.setFirstName(dto.getFirstName());
@@ -70,5 +100,6 @@ public class CustomersController {
             throw new HttpStatusException(HttpStatus.NOT_FOUND, "Customer not found");
         }
     }
+
 
 }

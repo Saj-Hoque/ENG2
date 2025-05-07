@@ -10,8 +10,8 @@ import io.micronaut.http.exceptions.HttpStatusException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import uk.ac.york.eng2.products.domain.Product;
-import uk.ac.york.eng2.products.dto.PricingRequestDTO;
-import uk.ac.york.eng2.products.dto.PricingResponseDTO;
+import uk.ac.york.eng2.products.dto.OrderRequestDTO;
+import uk.ac.york.eng2.products.dto.OrderResponseDTO;
 import uk.ac.york.eng2.products.repository.ProductRepository;
 
 import java.util.ArrayList;
@@ -28,14 +28,14 @@ public class PricingController {
     private ProductRepository productRepository;
 
 
-    public PricingResponseDTO calculatePricing(PricingRequestDTO request) {
+    public OrderResponseDTO calculatePricing(OrderRequestDTO request) {
 
-        PricingResponseDTO response = new PricingResponseDTO();
-        List<PricingResponseDTO.ProductPrice> productPrices = new ArrayList<>();
+        OrderResponseDTO response = new OrderResponseDTO();
+        List<OrderResponseDTO.ProductPrice> productPrices = new ArrayList<>();
         Float orderTotalPrice = 0f;
 
         // Iterate through every Product in the Order Pricing Request
-        for (PricingRequestDTO.ProductOrder productOrder : request.getOrder()){
+        for (OrderRequestDTO.ProductOrder productOrder : request.getOrder()){
             Long productId = productOrder.getProductId();
             Integer quantity = productOrder.getQuantity();
 
@@ -51,7 +51,7 @@ public class PricingController {
             Float productTotalPrice = unitPrice * quantity;
 
             // Create a ProductPrice object to add to the response
-            PricingResponseDTO.ProductPrice productPrice = new PricingResponseDTO.ProductPrice();
+            OrderResponseDTO.ProductPrice productPrice = new OrderResponseDTO.ProductPrice();
             productPrice.setProductId(productId);
             productPrice.setQuantity(quantity);
             productPrice.setUnitPrice(unitPrice);
@@ -75,9 +75,9 @@ public class PricingController {
 
     // Calculate Pricing TODO:Finish this comment
     @Post
-    public HttpResponse<PricingResponseDTO> priceCalculator(@Body PricingRequestDTO request) {
+    public HttpResponse<OrderResponseDTO> priceCalculator(@Body OrderRequestDTO request) {
 
-        PricingResponseDTO response = calculatePricing(request);
+        OrderResponseDTO response = calculatePricing(request);
 
         return HttpResponse.ok(response);
     }

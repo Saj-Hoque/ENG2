@@ -26,7 +26,7 @@ dependencies {
     implementation("io.micronaut.validation:micronaut-validation")
     implementation("jakarta.validation:jakarta.validation-api")
     implementation("io.micronaut:micronaut-http-client")
-
+    testImplementation("org.mockito:mockito-core:5.15.2")
     implementation("io.micronaut.flyway:micronaut-flyway")
     implementation("org.flywaydb:flyway-mysql")
 
@@ -59,7 +59,13 @@ micronaut {
         sharedServer = true
     }
     openapi {
-        // add OpenAPI configuration here
+        client("products", file("src/main/openapi/product-management-0.0.yml")) {
+            apiPackageName = "uk.ac.york.cs.eng2.products.api"
+            modelPackageName = "uk.ac.york.cs.eng2.products.model"
+            clientId = "products"
+            useReactive = false
+            alwaysUseGenerateHttpResponse = true
+        }
     }
 }
 

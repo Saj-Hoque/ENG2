@@ -4,6 +4,7 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.annotation.Client;
 import uk.ac.york.eng2.orders.domain.Customer;
+import uk.ac.york.eng2.orders.domain.Order;
 import uk.ac.york.eng2.orders.dto.CustomerCreateDTO;
 
 import java.util.List;
@@ -16,6 +17,9 @@ public interface CustomersClient {
 
     @Get("/{id}")
     Customer getCustomer(@PathVariable Long id);
+
+    @Get("/{id}/orders")
+    HttpResponse<List<Order>> getCustomerOrders(@PathVariable Long id);
 
     @Post
     HttpResponse<Void> createCustomer(@Body CustomerCreateDTO dto);

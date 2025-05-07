@@ -1,0 +1,340 @@
+openapi: 3.0.1
+info:
+  title: product-management
+  version: "0.0"
+paths:
+  /pricing:
+    post:
+      tags:
+      - pricing
+      operationId: priceCalculator
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderRequestDTO"
+        required: true
+      responses:
+        "200":
+          description: priceCalculator 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponseDTO"
+  /products:
+    get:
+      tags:
+      - products
+      operationId: getProducts
+      responses:
+        "200":
+          description: getProducts 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      tags:
+      - products
+      operationId: createProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductCreateDTO"
+        required: true
+      responses:
+        "200":
+          description: createProduct 200 response
+  /products/{id}:
+    get:
+      tags:
+      - products
+      operationId: getProduct
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: getProduct 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    put:
+      tags:
+      - products
+      operationId: updateProduct
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductCreateDTO"
+        required: true
+      responses:
+        "200":
+          description: updateProduct 200 response
+    delete:
+      tags:
+      - products
+      operationId: deleteProduct
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: deleteProduct 200 response
+  /products/{id}/tags:
+    get:
+      tags:
+      - products
+      operationId: getProductTags
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: getProductTags 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tag"
+  /products/{id}/tags/{tagId}:
+    put:
+      tags:
+      - products
+      operationId: addProductTag
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: tagId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: addProductTag 200 response
+    delete:
+      tags:
+      - products
+      operationId: removeProductTag
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: tagId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: removeProductTag 200 response
+  /tags:
+    get:
+      tags:
+      - tags
+      operationId: getTags
+      responses:
+        "200":
+          description: getTags 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tag"
+    post:
+      tags:
+      - tags
+      operationId: createTag
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TagCreateDTO"
+        required: true
+      responses:
+        "200":
+          description: createTag 200 response
+  /tags/{id}:
+    get:
+      tags:
+      - tags
+      operationId: getTag
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: getTag 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+    put:
+      tags:
+      - tags
+      operationId: updateTag
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TagCreateDTO"
+        required: true
+      responses:
+        "200":
+          description: updateTag 200 response
+    delete:
+      tags:
+      - tags
+      operationId: deleteTag
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: deleteTag 200 response
+  /tags/{id}/products:
+    get:
+      tags:
+      - tags
+      operationId: getTagProducts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: getTagProducts 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+components:
+  schemas:
+    OrderRequestDTO:
+      type: object
+      properties:
+        order:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderRequestDTO.ProductOrder"
+    OrderRequestDTO.ProductOrder:
+      type: object
+      properties:
+        productId:
+          type: integer
+          format: int64
+        quantity:
+          type: integer
+          format: int32
+    OrderResponseDTO:
+      type: object
+      properties:
+        orderTotalPrice:
+          type: number
+          format: float
+        productPrices:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderResponseDTO.ProductPrice"
+    OrderResponseDTO.ProductPrice:
+      type: object
+      properties:
+        productId:
+          type: integer
+          format: int64
+        unitPrice:
+          type: number
+          format: float
+        quantity:
+          type: integer
+          format: int32
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          nullable: true
+        name:
+          type: string
+        unitPrice:
+          type: number
+          format: float
+    ProductCreateDTO:
+      type: object
+      properties:
+        name:
+          type: string
+        unitPrice:
+          type: number
+          format: float
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          nullable: true
+        name:
+          type: string
+    TagCreateDTO:
+      type: object
+      properties:
+        name:
+          type: string

@@ -4,13 +4,13 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.client.annotation.Client;
-import uk.ac.york.eng2.products.dto.PricingRequestDTO;
-import uk.ac.york.eng2.products.dto.PricingResponseDTO;
+import uk.ac.york.eng2.products.dto.OrderRequestDTO;
+import uk.ac.york.eng2.products.dto.OrderResponseDTO;
 
 @Client("/pricing")
 public interface PricingClient {
 
     @Post
-    HttpResponse<PricingResponseDTO> priceCalculator(@Body PricingRequestDTO request);
+    HttpResponse<OrderResponseDTO> priceCalculator(@Body OrderRequestDTO request);
 
 }

@@ -5,7 +5,7 @@ import io.micronaut.serde.annotation.Serdeable;
 import java.util.List;
 
 @Serdeable
-public class PricingRequestDTO {
+public class OrderRequestDTO {
     private List<ProductOrder> order;
 
     @Serdeable

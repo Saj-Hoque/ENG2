@@ -5,7 +5,7 @@ import io.micronaut.serde.annotation.Serdeable;
 import java.util.List;
 
 @Serdeable
-public class PricingResponseDTO {
+public class OrderResponseDTO {
     private Float orderTotalPrice;
     private List<ProductPrice> productPrices;
 
