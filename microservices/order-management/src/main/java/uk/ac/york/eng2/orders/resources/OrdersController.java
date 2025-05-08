@@ -5,8 +5,13 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.scheduling.TaskExecutors;
+import io.micronaut.scheduling.annotation.ExecuteOn;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import uk.ac.york.cs.eng2.products.api.PricingApi;
+import uk.ac.york.cs.eng2.products.model.OrderRequestDTO;
+import uk.ac.york.cs.eng2.products.model.OrderResponseDTO;
 import uk.ac.york.eng2.orders.domain.Customer;
 import uk.ac.york.eng2.orders.domain.Order;
 import uk.ac.york.eng2.orders.dto.OrderCreateDTO;
@@ -27,6 +32,8 @@ public class OrdersController {
     private OrderRepository orderRepository;
     @Inject
     private CustomerRepository customerRepository;
+    @Inject
+    private PricingApi pricingApi;
 
     // List all orders
     @Get
@@ -44,8 +51,9 @@ public class OrdersController {
     @Get("/{id}/customer")
     public Customer getOrderCustomer(@PathVariable Long id) { return customerRepository.findByOrdersId(id).orElse(null); }
 
-    // Create a new order TODO: Need to do the calcualtion shit
+    // Create a new order
     @Post
+    @ExecuteOn(TaskExecutors.BLOCKING)
     public HttpResponse<Void> createOrder(@Body OrderCreateDTO dto) {
         Order order = new Order();
 
@@ -62,14 +70,27 @@ public class OrdersController {
             order.setCustomer(oCustomer.get());
         }
 
-        order.setTotalAmount(100F);
+        // Calculate totalAmount by invoking PM (OpenAPI)
+
+        OrderRequestDTO request = dto.getOrderRequest();
+        HttpResponse<OrderResponseDTO> response = pricingApi.priceCalculator(request);
+        if (!response.status().equals(HttpStatus.OK) || response.body() == null) {
+            throw new HttpStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error calling PM");
+        }
+
+        // Update OrderItem
+        // TODO:
+
+
+        order.setTotalAmount(response.body().getOrderTotalPrice());
         order = orderRepository.save(order);
         return HttpResponse.created(URI.create(PREFIX + "/" + order.getId()));
     }
 
-    // Update an order (by id) TODO: update calcualation shit
+    // Update an order (by id)
     @Transactional
     @Put("/{id}")
+    @ExecuteOn(TaskExecutors.BLOCKING)
     public void updateOrder(@Body OrderCreateDTO dto, @PathVariable Long id) {
         @NonNull Optional<Order> oOrder = orderRepository.findById(id);
         if (oOrder.isEmpty()) {
@@ -90,7 +111,16 @@ public class OrdersController {
             order.setCustomer(oCustomer.get());
         }
 
-        order.setTotalAmount(100F);
+        OrderRequestDTO request = dto.getOrderRequest();
+        HttpResponse<OrderResponseDTO> response = pricingApi.priceCalculator(request);
+        if (!response.status().equals(HttpStatus.OK) || response.body() == null) {
+            throw new HttpStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error calling PM");
+        }
+
+        // Update OrderItem
+        // TODO:
+
+        order.setTotalAmount(response.body().getOrderTotalPrice());
         orderRepository.save(order);
     }
 
