@@ -29,9 +29,9 @@ public class CustomersControllerTest {
 
     @Inject
     private CustomerRepository customerRepository;
+
     @Inject
     private OrderRepository orderRepository;
-
 
     @BeforeEach
     public void setup() {
@@ -40,8 +40,8 @@ public class CustomersControllerTest {
     }
 
     // Helper method - creates a customer and returns generated customer id
-    private Long createCustomer(CustomerCreateDTO b) {
-        HttpResponse<Void> createResponse = customersClient.createCustomer(b);
+    private Long createCustomer(CustomerCreateDTO dto) {
+        HttpResponse<Void> createResponse = customersClient.createCustomer(dto);
         Long customerId = Long.valueOf(createResponse.header(HttpHeaders.LOCATION).split("/")[2]);
         return customerId;
     }
@@ -76,6 +76,8 @@ public class CustomersControllerTest {
         Long customerId = createCustomer(c);
         Customer fetchedCustomer = customersClient.getCustomer(customerId);
         assertEquals(c.getEmail(), fetchedCustomer.getEmail());
+        assertEquals(c.getFirstName(), fetchedCustomer.getFirstName());
+        assertEquals(c.getFamilyName(), fetchedCustomer.getFamilyName());
     }
 
     // Test retrieving a customer with a missing ID
@@ -173,7 +175,7 @@ public class CustomersControllerTest {
 
     }
 
-    // Test updating a customers details and verifying that customerRepository has been updated accordingly
+    // Test deleting a customer and verify that customerRepository has been updated accordingly
     @Test
     public void deleteCustomerById() {
         CustomerCreateDTO c = new CustomerCreateDTO();

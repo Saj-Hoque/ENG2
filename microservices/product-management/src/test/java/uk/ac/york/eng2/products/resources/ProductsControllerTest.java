@@ -107,7 +107,7 @@ public class ProductsControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
     }
 
-    // Test updating a products details and verifying that productRepository has been updated accordingly
+    // Test deleting a product and verify that productRepository has been updated accordingly
     @Test
     public void deleteProductById() {
         ProductCreateDTO p = new ProductCreateDTO();

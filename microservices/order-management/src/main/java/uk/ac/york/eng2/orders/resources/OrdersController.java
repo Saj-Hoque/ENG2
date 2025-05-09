@@ -49,7 +49,16 @@ public class OrdersController {
 
     // Retrieve customer of order id
     @Get("/{id}/customer")
-    public Customer getOrderCustomer(@PathVariable Long id) { return customerRepository.findByOrdersId(id).orElse(null); }
+    public HttpResponse<Customer> getOrderCustomer(@PathVariable Long id) {
+
+        Optional<Order> order = orderRepository.findById(id);
+        if (order.isEmpty()) {
+            throw new HttpStatusException(HttpStatus.NOT_FOUND, "Order not found");
+        }
+        // If the order exists, return the customer associated with the order
+        Customer customer = customerRepository.findByOrdersId(id).orElse(null);;
+        return HttpResponse.ok(customer);
+    }
 
     // Create a new order
     @Post
@@ -68,14 +77,15 @@ public class OrdersController {
                 throw new HttpStatusException(HttpStatus.NOT_FOUND, "Customer not found");
             }
             order.setCustomer(oCustomer.get());
+        } else {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Customer id must be provided");
         }
 
         // Calculate totalAmount by invoking PM (OpenAPI)
-
         OrderRequestDTO request = dto.getOrderRequest();
         HttpResponse<OrderResponseDTO> response = pricingApi.priceCalculator(request);
-        if (!response.status().equals(HttpStatus.OK) || response.body() == null) {
-            throw new HttpStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error calling PM");
+        if (!response.status().equals(HttpStatus.OK)) {
+            throw new HttpStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error invoking PM");
         }
 
         // Update OrderItem
@@ -109,11 +119,13 @@ public class OrdersController {
                 throw new HttpStatusException(HttpStatus.NOT_FOUND, "Customer not found");
             }
             order.setCustomer(oCustomer.get());
+        } else {
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Customer id must be provided");
         }
 
         OrderRequestDTO request = dto.getOrderRequest();
         HttpResponse<OrderResponseDTO> response = pricingApi.priceCalculator(request);
-        if (!response.status().equals(HttpStatus.OK) || response.body() == null) {
+        if (!response.status().equals(HttpStatus.OK)) {
             throw new HttpStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error calling PM");
         }
 
@@ -124,7 +136,7 @@ public class OrdersController {
         orderRepository.save(order);
     }
 
-    // Delete a order (by id)
+    // Delete an order (by id)
     @Delete("/{id}")
     public void deleteOrder(@PathVariable Long id) {
         if (orderRepository.existsById(id)) {

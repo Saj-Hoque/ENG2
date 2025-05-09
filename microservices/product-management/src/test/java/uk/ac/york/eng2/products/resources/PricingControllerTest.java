@@ -93,6 +93,7 @@ public class PricingControllerTest {
 
     }
 
+    // Testing to calculate the price of an order with a non-existing product
     @Test
     void calculatePricingInvalid() {
         List<OrderRequestDTO.ProductOrder> basket = new ArrayList<>();

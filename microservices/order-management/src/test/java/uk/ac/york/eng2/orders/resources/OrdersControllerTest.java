@@ -4,6 +4,7 @@ import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MutableHttpResponse;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.annotation.MockBean;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
@@ -12,12 +13,18 @@ import org.junit.jupiter.api.Test;
 import uk.ac.york.cs.eng2.products.api.PricingApi;
 import uk.ac.york.cs.eng2.products.api.ProductsApi;
 import uk.ac.york.cs.eng2.products.model.*;
+import uk.ac.york.eng2.orders.domain.Customer;
+import uk.ac.york.eng2.orders.domain.Order;
+import uk.ac.york.eng2.orders.dto.CustomerCreateDTO;
+import uk.ac.york.eng2.orders.dto.OrderCreateDTO;
+import uk.ac.york.eng2.orders.repository.CustomerRepository;
+import uk.ac.york.eng2.orders.repository.OrderRepository;
 
-import java.net.URI;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -33,65 +40,356 @@ public class OrdersControllerTest {
     private static final Float UNIT_PRICE_B = 2.50F;
     private static final Float UNIT_PRICE_C = 5.00F;
 
-    @Inject private PricingApi pricingApi;
-    @Inject private ProductsApi productsApi;
+    @Inject
+    private PricingApi pricingApi;
+
+    @Inject
+    private ProductsApi productsApi;
+
+    @Inject
+    private OrdersClient ordersClient;
+
+    @Inject
+    private OrderRepository orderRepository;
+
+    @Inject
+    private CustomerRepository customerRepository;
 
 
-    @Test
-    public void testtest(){
-        ProductCreateDTO dto = new ProductCreateDTO();
-        dto.setName(PRODUCT_NAME_1);
-        dto.setUnitPrice(UNIT_PRICE_A);
-
-        HttpResponse<Void> response = productsApi.createProduct(dto);
-        assertEquals(HttpStatus.CREATED, response.getStatus());
-
-        Long productId = Long.valueOf(response.header(HttpHeaders.LOCATION).split("/")[2]);
-        Product fetchedProduct = productsApi.getProduct(productId).body();
-        assertEquals(dto.getName(), fetchedProduct.getName());
+    @BeforeEach
+    public void setup() {
+        orderRepository.deleteAll();
+        customerRepository.deleteAll();
     }
 
-    //    @Test
-//    public void productDoesNotExist() {
-//
-//        List<PricingRequestDTOProductOrder> basket = new ArrayList<>();
-//        PricingRequestDTOProductOrder order = new PricingRequestDTOProductOrder();
-//        order.setProductId(1L);
-//        order.setQuantity(1);
-//        basket.add(order);
-//
-//        PricingRequestDTO request = new PricingRequestDTO();
-//        request.setOrder(basket);
-//
-//        HttpResponse<PricingResponseDTO> response = pricingApi.priceCalculator(request);
-//        assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
-//    }
+    // Helper method - creates a order and returns generated order id
+    private Long createOrder(OrderCreateDTO dto) {
+        HttpResponse<Void> createResponse = ordersClient.createOrder(dto);
+        Long orderId = Long.valueOf(createResponse.header(HttpHeaders.LOCATION).split("/")[2]);
+        return orderId;
+    }
 
-//    @Test
-//    public void acquireOrderTotal() {
-//
-//
-//        List<PricingRequestDTOProductOrder> orderList = new ArrayList<>();
-//
-//
-//
-//        PricingRequestDTOProductOrder orderItem1 = new PricingRequestDTOProductOrder();
-//        // Example: orderItem1.setProductId("prod-001");
-//        // Example: orderItem1.setQuantity(2);or
-//        // Fill in other fields as needed
-//
-//        PricingRequestDTOProductOrder orderItem2 = new PricingRequestDTOProductOrder();
-//        // Example: orderItem2.setProductId("prod-002");
-//        // Example: orderItem2.setQuantity(1);
-//        // Fill in other fields as needed
-//
-//        orderList.add(orderItem1);
-//        orderList.add(orderItem2);
-//
-//        PricingRequestDTO pricingRequest = new PricingRequestDTO();
-//        pricingRequest.setOrder(orderList);
-//
-//
+    private OrderRequestDTO templateOrderRequest() {
+        List<OrderRequestDTOProductOrder> basket = new ArrayList<>();
+
+        OrderRequestDTOProductOrder orderItem1 = new OrderRequestDTOProductOrder();
+        orderItem1.setProductId(1L);
+        orderItem1.setQuantity(1);
+        basket.add(orderItem1);
+
+
+        OrderRequestDTO request = new OrderRequestDTO();
+        request.setOrder(basket);
+
+        return request;
+    }
+
+    private OrderRequestDTO templateMultipleOrderRequest() {
+        List<OrderRequestDTOProductOrder> basket = new ArrayList<>();
+
+        OrderRequestDTOProductOrder orderItem1 = new OrderRequestDTOProductOrder();
+        orderItem1.setProductId(1L);
+        orderItem1.setQuantity(1);
+        basket.add(orderItem1);
+
+        OrderRequestDTOProductOrder orderItem2 = new OrderRequestDTOProductOrder();
+        orderItem2.setProductId(2L);
+        orderItem2.setQuantity(2);
+        basket.add(orderItem2);
+
+        OrderRequestDTO request = new OrderRequestDTO();
+        request.setOrder(basket);
+
+        return request;
+    }
+
+    // Test that orderRepository is empty.
+    @Test
+    public void noOrders() {
+        assertEquals(0, ordersClient.getOrders().size());
+    }
+
+    // Test creating an order and list them to verify that orderRepository has been updated accordingly
+    @Test
+    public void createAndListOrders() {
+        Customer customer = new Customer();
+        customer.setEmail("test@test.com");
+        customer.setFirstName("Test");
+        customer.setFamilyName("Test");
+        customer = customerRepository.save(customer);
+
+        OrderCreateDTO o = new OrderCreateDTO();
+        o.setCustomerId(customer.getId());
+        o.setAddress("Test");
+        o.setOrderRequest(templateOrderRequest());
+
+        ordersClient.createOrder(o);
+        assertEquals(1, ordersClient.getOrders().size());
+    }
+
+    // Test creating an order with a missing customer
+    @Test
+    public void createOrderMissingCustomer() {
+        OrderCreateDTO o = new OrderCreateDTO();
+        o.setCustomerId(1L);
+        o.setAddress("Test");
+        o.setOrderRequest(templateOrderRequest());
+
+        HttpResponse response = ordersClient.createOrder(o);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+    }
+
+    // Test creating an order with no customer id present
+    @Test
+    public void createOrderNullCustomer() {
+        OrderCreateDTO o = new OrderCreateDTO();
+        o.setCustomerId(null);
+        o.setAddress("Test");
+        o.setOrderRequest(templateOrderRequest());
+
+        try {
+            ordersClient.createOrder(o);
+        } catch (HttpClientResponseException e) {
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatus());
+        }
+    }
+
+    // Test creating an order where there is an error invoking pricingApi
+    @Test
+    public void createOrderErrorApi() {
+        Customer customer = new Customer();
+        customer.setEmail("test@test.com");
+        customer.setFirstName("Test");
+        customer.setFamilyName("Test");
+        customer = customerRepository.save(customer);
+
+        OrderCreateDTO o = new OrderCreateDTO();
+        o.setCustomerId(customer.getId());
+        o.setAddress("Test");
+        o.setOrderRequest(null);
+
+        try {
+            ordersClient.createOrder(o);
+        } catch (HttpClientResponseException e) {
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatus());
+        }
+    }
+
+    // Test retrieving an order by ID
+    @Test
+    public void fetchOrderById() {
+        Customer customer = new Customer();
+        customer.setEmail("test@test.com");
+        customer.setFirstName("Test");
+        customer.setFamilyName("Test");
+        customer = customerRepository.save(customer);
+
+        OrderCreateDTO o = new OrderCreateDTO();
+        o.setCustomerId(customer.getId());
+        o.setAddress("Test");
+        o.setOrderRequest(templateOrderRequest());
+
+        Long orderId = createOrder(o);
+        Order fetchedOrder = ordersClient.getOrder(orderId);
+
+        assertEquals(o.getAddress(), fetchedOrder.getAddress());
+        // Customer ID not checked here because @JsonIgnore
+        assertEquals(LocalDate.now(), fetchedOrder.getDateCreated());
+        assertEquals(1F, fetchedOrder.getTotalAmount());
+    }
+
+    // Test retrieving an order with a missing ID
+    @Test
+    public void fetchMissingOrder() {
+        assertNull(ordersClient.getOrder(123L));
+    }
+
+    // Test updating an orders details and verifying these values have changed accordingly
+    @Test
+    public void updateOrderDetails() {
+        Customer customer = new Customer();
+        customer.setEmail("test@test.com");
+        customer.setFirstName("Test");
+        customer.setFamilyName("Test");
+        customer = customerRepository.save(customer);
+
+        OrderCreateDTO o = new OrderCreateDTO();
+        o.setCustomerId(customer.getId());
+        o.setAddress("Test");
+        o.setOrderRequest(templateOrderRequest());
+        Long orderId = createOrder(o);
+
+        // Update the order with new address and orderRequest
+        o.setCustomerId(customer.getId());
+        o.setAddress("Updated");
+        o.setOrderRequest(templateMultipleOrderRequest());
+        ordersClient.updateOrder(o, orderId);
+
+        Order updatedOrder = ordersClient.getOrder(orderId);
+        assertEquals(o.getAddress(), updatedOrder.getAddress());
+        // Customer ID not checked here because @JsonIgnore
+        assertEquals(LocalDate.now(), updatedOrder.getDateCreated());
+        assertEquals(6F, updatedOrder.getTotalAmount());
+    }
+
+    // Test updating a non-existent order returns 404 Not Found
+    @Test
+    public void updateMissingOrder() {
+        Customer customer = new Customer();
+        customer.setEmail("test@test.com");
+        customer.setFirstName("Test");
+        customer.setFamilyName("Test");
+        customer = customerRepository.save(customer);
+
+        OrderCreateDTO o = new OrderCreateDTO();
+        o.setCustomerId(customer.getId());
+        o.setAddress("Test");
+        o.setOrderRequest(templateOrderRequest());
+
+        HttpResponse response = ordersClient.updateOrder(o, 123L);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+    }
+
+    // Test updating an order with a missing customer
+    @Test
+    public void updateOrderMissingCustomer() {
+        Customer customer = new Customer();
+        customer.setEmail("test@test.com");
+        customer.setFirstName("Test");
+        customer.setFamilyName("Test");
+        customer = customerRepository.save(customer);
+
+        OrderCreateDTO o = new OrderCreateDTO();
+        o.setCustomerId(customer.getId());
+        o.setAddress("Test");
+        o.setOrderRequest(templateOrderRequest());
+        Long orderId = createOrder(o);
+
+        // Update the order with new address and orderRequest and MISSING customer ID
+        o.setCustomerId(123L);
+        o.setAddress("Updated");
+        o.setOrderRequest(templateMultipleOrderRequest());
+
+        HttpResponse response = ordersClient.updateOrder(o, orderId);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+    }
+
+    // Test updating an order with a null customer
+    @Test
+    public void updateOrderNullCustomer() {
+        Customer customer = new Customer();
+        customer.setEmail("test@test.com");
+        customer.setFirstName("Test");
+        customer.setFamilyName("Test");
+        customer = customerRepository.save(customer);
+
+        OrderCreateDTO o = new OrderCreateDTO();
+        o.setCustomerId(customer.getId());
+        o.setAddress("Test");
+        o.setOrderRequest(templateOrderRequest());
+        Long orderId = createOrder(o);
+
+        // Update the order with new address and orderRequest and MISSING customer ID
+        o.setCustomerId(null);
+        o.setAddress("Updated");
+        o.setOrderRequest(templateMultipleOrderRequest());
+
+        try {
+            ordersClient.updateOrder(o, orderId);
+        } catch (HttpClientResponseException e) {
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatus());
+        }
+    }
+
+    // Test updating an order where there is an error invoking pricingApi
+    @Test
+    public void updateOrderErrorApi() {
+        Customer customer = new Customer();
+        customer.setEmail("test@test.com");
+        customer.setFirstName("Test");
+        customer.setFamilyName("Test");
+        customer = customerRepository.save(customer);
+
+        OrderCreateDTO o = new OrderCreateDTO();
+        o.setCustomerId(customer.getId());
+        o.setAddress("Test");
+        o.setOrderRequest(templateOrderRequest());
+        Long orderId = createOrder(o);
+
+        // Update the order with new address and orderRequest and MISSING customer ID
+        o.setCustomerId(customer.getId());
+        o.setAddress("Updated");
+        o.setOrderRequest(null);
+
+        try {
+            ordersClient.updateOrder(o, orderId);
+        } catch (HttpClientResponseException e) {
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatus());
+        }
+    }
+
+
+    // Test deleting an order and verify that orderRepository has been updated accordingly
+    @Test
+    public void deleteOrderById() {
+        Customer customer = new Customer();
+        customer.setEmail("test@test.com");
+        customer.setFirstName("Test");
+        customer.setFamilyName("Test");
+        customer = customerRepository.save(customer);
+
+        OrderCreateDTO o = new OrderCreateDTO();
+        o.setCustomerId(customer.getId());
+        o.setAddress("Test");
+        o.setOrderRequest(templateOrderRequest());
+        Long orderId = createOrder(o);
+
+        ordersClient.deleteOrder(orderId);
+        assertEquals(0, ordersClient.getOrders().size());
+    }
+
+    // Test deleting a non-existent order returns 404 Not Found
+    @Test
+    public void deleteMissingOrder() {
+        HttpResponse response = ordersClient.deleteOrder(123L);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+    }
+
+    // Test retrieving and listing customers of an order
+    @Test
+    public void listOrderCustomer() {
+        Customer customer = new Customer();
+        customer.setEmail("test@test.com");
+        customer.setFirstName("Test");
+        customer.setFamilyName("Test");
+        customer = customerRepository.save(customer);
+
+        OrderCreateDTO o = new OrderCreateDTO();
+        o.setCustomerId(customer.getId());
+        o.setAddress("Test");
+        o.setOrderRequest(templateOrderRequest());
+        Long orderId = createOrder(o);
+
+
+        HttpResponse<Customer> response = ordersClient.getOrderCustomer(orderId);
+        assertEquals(HttpStatus.OK, response.getStatus());
+
+        Customer retrievedCustomer = response.body();
+        assertNotNull(retrievedCustomer);
+        assertEquals(customer.getId(), retrievedCustomer.getId());
+        assertEquals(customer.getEmail(), retrievedCustomer.getEmail());
+        assertEquals(customer.getFirstName(), retrievedCustomer.getFirstName());
+        assertEquals(customer.getFamilyName(), retrievedCustomer.getFamilyName());
+
+    }
+
+    // Test listing customer of non-existing order
+    @Test
+    public void listOrderCustomerMissingOrder() {
+        HttpResponse<Customer> customer = ordersClient.getOrderCustomer(123L);
+        assertEquals(HttpStatus.NOT_FOUND, customer.getStatus());
+    }
+
 //    }
     @MockBean (ProductsApi.class)
     public ProductsApi getProductsApi() {
@@ -108,6 +406,32 @@ public class OrdersControllerTest {
 
         when(mock.createProduct(any())).thenReturn(mockCreateResponse);
         when(mock.getProduct(any())).thenReturn((mockGetResponse));
+
+        return mock;
+    }
+
+    @MockBean (PricingApi.class)
+    public PricingApi getPricingApi() {
+        PricingApi mock = mock(PricingApi.class);
+
+        // Create mock orderResponseDTO
+        OrderResponseDTO orderResponse = new OrderResponseDTO();
+        List<OrderResponseDTOProductPrice> productPrices = new ArrayList<>(); //TODO: when orderItem is done
+        orderResponse.setProductPrices(productPrices);
+        orderResponse.setOrderTotalPrice(1F);
+        HttpResponse<OrderResponseDTO> mockOrderResponse = HttpResponse.ok(orderResponse);
+
+        // Create mock orderResponseDTO with multiple product orders
+        OrderResponseDTO multipleOrderResponse = new OrderResponseDTO();
+        List<OrderResponseDTOProductPrice> multipleProductPrices = new ArrayList<>(); //TODO: when orderItem is done
+        multipleOrderResponse.setProductPrices(multipleProductPrices);
+        multipleOrderResponse.setOrderTotalPrice(6F);
+        HttpResponse<OrderResponseDTO> mockMultipleOrderResponse = HttpResponse.ok(multipleOrderResponse);
+
+
+        when(mock.priceCalculator(templateOrderRequest())).thenReturn(mockOrderResponse);
+        when(mock.priceCalculator(templateMultipleOrderRequest())).thenReturn(mockMultipleOrderResponse);
+        when(mock.priceCalculator(null)).thenReturn(HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR));
 
         return mock;
     }

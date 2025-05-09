@@ -100,7 +100,7 @@ public class TagsControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
     }
 
-    // Test updating a tags details and verifying that tagRepository has been updated accordingly
+    // Test deleting a tag and verify that tagRepository has been updated accordingly
     @Test
     public void deleteTagById() {
         TagCreateDTO t = new TagCreateDTO();
