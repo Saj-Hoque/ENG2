@@ -9,6 +9,8 @@ public class OrderCreateDTO {
     private Long customerId;
     private String address;
     private OrderRequestDTO orderRequest;
+    // `DateCreated` and `totalAmount` to be calculated during order creation - not set by User
+    // `Paid` and `Delivered` (default: false) are to be set when updating the order
 
     public Long getCustomerId() { return customerId; }
     public void setCustomerId(Long customerId) { this.customerId = customerId; }

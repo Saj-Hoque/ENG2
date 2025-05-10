@@ -15,6 +15,7 @@ import uk.ac.york.cs.eng2.products.model.OrderResponseDTO;
 import uk.ac.york.eng2.orders.domain.Customer;
 import uk.ac.york.eng2.orders.domain.Order;
 import uk.ac.york.eng2.orders.dto.OrderCreateDTO;
+import uk.ac.york.eng2.orders.dto.OrderUpdateDTO;
 import uk.ac.york.eng2.orders.repository.CustomerRepository;
 import uk.ac.york.eng2.orders.repository.OrderRepository;
 
@@ -98,41 +99,17 @@ public class OrdersController {
     }
 
     // Update an order (by id)
+    // "Orders are final once confirmed, and the only option is to cancel them" hence only `paid` and `delivered` can be updated.
     @Transactional
     @Put("/{id}")
-    @ExecuteOn(TaskExecutors.BLOCKING)
-    public void updateOrder(@Body OrderCreateDTO dto, @PathVariable Long id) {
+    public void updateOrder(@Body OrderUpdateDTO dto, @PathVariable Long id) {
         @NonNull Optional<Order> oOrder = orderRepository.findById(id);
         if (oOrder.isEmpty()) {
             throw new HttpStatusException(HttpStatus.NOT_FOUND, "Order not found");
         }
         Order order = oOrder.get();
-        // This will cause the order date to also be updated to current date.
-        order.setDateCreated(LocalDate.now());
-        order.setAddress(dto.getAddress());
-        order.setPaid(false);
-        order.setDelivered(false);
-
-        if (dto.getCustomerId() != null) {
-            @NonNull Optional<Customer> oCustomer = customerRepository.findById(dto.getCustomerId());
-            if (oCustomer.isEmpty()) {
-                throw new HttpStatusException(HttpStatus.NOT_FOUND, "Customer not found");
-            }
-            order.setCustomer(oCustomer.get());
-        } else {
-            throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Customer id must be provided");
-        }
-
-        OrderRequestDTO request = dto.getOrderRequest();
-        HttpResponse<OrderResponseDTO> response = pricingApi.priceCalculator(request);
-        if (!response.status().equals(HttpStatus.OK)) {
-            throw new HttpStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error calling PM");
-        }
-
-        // Update OrderItem
-        // TODO:
-
-        order.setTotalAmount(response.body().getOrderTotalPrice());
+        order.setPaid(dto.getPaid());
+        order.setDelivered(dto.getDelivered());
         orderRepository.save(order);
     }
 

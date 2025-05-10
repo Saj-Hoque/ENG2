@@ -6,6 +6,7 @@ import io.micronaut.http.client.annotation.Client;
 import uk.ac.york.eng2.orders.domain.Customer;
 import uk.ac.york.eng2.orders.domain.Order;
 import uk.ac.york.eng2.orders.dto.OrderCreateDTO;
+import uk.ac.york.eng2.orders.dto.OrderUpdateDTO;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public interface OrdersClient {
     HttpResponse<Void> createOrder(@Body OrderCreateDTO dto);
 
     @Put("/{id}")
-    HttpResponse<Void> updateOrder(@Body OrderCreateDTO dto, @PathVariable Long id);
+    HttpResponse<Void> updateOrder(@Body OrderUpdateDTO dto, @PathVariable Long id);
 
     @Delete("/{id}")
     HttpResponse<Void> deleteOrder(@PathVariable Long id);

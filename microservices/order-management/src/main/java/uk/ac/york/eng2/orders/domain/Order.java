@@ -5,6 +5,8 @@ import io.micronaut.serde.annotation.Serdeable;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Serdeable
 @Entity(name="orders")
@@ -33,6 +35,10 @@ public class Order {
     @ManyToOne
     private Customer customer;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "order")
+    private Set<OrderItem> orderItems = new HashSet<>();
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -53,4 +59,9 @@ public class Order {
 
     public Customer getCustomer() { return customer; }
     public void setCustomer(Customer customer)  { this.customer = customer; }
+
+    public Set<OrderItem> getOrderItems() { return orderItems; }
+    //    public void setOrderItems(Set<OrderItem> orderItems) { this.orderItems = orderItems; }
+    //    Only the owning side (OrderItem) of an M-1 relationship should manage order items.
+
 }
