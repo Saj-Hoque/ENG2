@@ -34,6 +34,8 @@ dependencies {
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     testImplementation("io.micronaut:micronaut-http-client")
     testImplementation("org.hamcrest:hamcrest:3.0")
+    // For the producer tests
+    testImplementation("org.mockito:mockito-core:5.15.2")
 }
 
 application {

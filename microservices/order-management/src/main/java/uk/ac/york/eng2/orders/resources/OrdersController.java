@@ -16,6 +16,7 @@ import uk.ac.york.eng2.orders.domain.Customer;
 import uk.ac.york.eng2.orders.domain.Order;
 import uk.ac.york.eng2.orders.dto.OrderCreateDTO;
 import uk.ac.york.eng2.orders.dto.OrderUpdateDTO;
+import uk.ac.york.eng2.orders.events.OrdersProducer;
 import uk.ac.york.eng2.orders.repository.CustomerRepository;
 import uk.ac.york.eng2.orders.repository.OrderRepository;
 
@@ -35,6 +36,9 @@ public class OrdersController {
     private CustomerRepository customerRepository;
     @Inject
     private PricingApi pricingApi;
+    @Inject
+    private OrdersProducer ordersProducer;
+
 
     // List all orders
     @Get
@@ -89,12 +93,14 @@ public class OrdersController {
             throw new HttpStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error invoking PM");
         }
 
-        // Update OrderItem
-        // TODO:
-
-
         order.setTotalAmount(response.body().getOrderTotalPrice());
         order = orderRepository.save(order);
+
+        // Update OrderItem
+        // TODO:
+        ordersProducer.orderCreated(order.getId(), request, order.getDateCreated());
+
+
         return HttpResponse.created(URI.create(PREFIX + "/" + order.getId()));
     }
 

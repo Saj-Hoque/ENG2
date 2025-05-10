@@ -15,6 +15,7 @@ import uk.ac.york.eng2.orders.domain.Customer;
 import uk.ac.york.eng2.orders.domain.Order;
 import uk.ac.york.eng2.orders.dto.OrderCreateDTO;
 import uk.ac.york.eng2.orders.dto.OrderUpdateDTO;
+import uk.ac.york.eng2.orders.events.OrdersProducer;
 import uk.ac.york.eng2.orders.repository.CustomerRepository;
 import uk.ac.york.eng2.orders.repository.OrderRepository;
 
@@ -37,6 +38,9 @@ public class OrdersControllerTest {
 
     @Inject
     private CustomerRepository customerRepository;
+
+    @Inject
+    private OrdersProducer ordersProducer;
 
 
     @BeforeEach
@@ -105,9 +109,15 @@ public class OrdersControllerTest {
         o.setCustomerId(customer.getId());
         o.setAddress("Test");
         o.setOrderRequest(templateOrderRequest());
+        Long orderId = createOrder(o);
 
-        ordersClient.createOrder(o);
         assertEquals(1, ordersClient.getOrders().size());
+        Order fetchedOrder = ordersClient.getOrder(orderId);
+        verify(ordersProducer).orderCreated(
+                eq(orderId),
+                eq(templateOrderRequest()),
+                eq(fetchedOrder.getDateCreated())
+        );
     }
 
     // Test creating an order with a missing customer
@@ -174,11 +184,17 @@ public class OrdersControllerTest {
 
         Long orderId = createOrder(o);
         Order fetchedOrder = ordersClient.getOrder(orderId);
+        verify(ordersProducer).orderCreated(
+                eq(orderId),
+                eq(templateOrderRequest()),
+                eq(fetchedOrder.getDateCreated())
+        );
 
         assertEquals(o.getAddress(), fetchedOrder.getAddress());
         // Customer ID not checked here because @JsonIgnore
         assertEquals(LocalDate.now(), fetchedOrder.getDateCreated());
         assertEquals(1F, fetchedOrder.getTotalAmount());
+
     }
 
     // Test retrieving an order with a missing ID
@@ -200,7 +216,14 @@ public class OrdersControllerTest {
         o.setCustomerId(customer.getId());
         o.setAddress("Test");
         o.setOrderRequest(templateOrderRequest());
+
         Long orderId = createOrder(o);
+        Order fetchedOrder = ordersClient.getOrder(orderId);
+        verify(ordersProducer).orderCreated(
+                eq(orderId),
+                eq(templateOrderRequest()),
+                eq(fetchedOrder.getDateCreated())
+        );
 
         // Update the order with paid and delivered set to true
         OrderUpdateDTO update = new OrderUpdateDTO();
@@ -242,6 +265,13 @@ public class OrdersControllerTest {
         o.setOrderRequest(templateOrderRequest());
         Long orderId = createOrder(o);
 
+        Order fetchedOrder = ordersClient.getOrder(orderId);
+        verify(ordersProducer).orderCreated(
+                eq(orderId),
+                eq(templateOrderRequest()),
+                eq(fetchedOrder.getDateCreated())
+        );
+
         ordersClient.deleteOrder(orderId);
         assertEquals(0, ordersClient.getOrders().size());
     }
@@ -268,6 +298,12 @@ public class OrdersControllerTest {
         o.setOrderRequest(templateOrderRequest());
         Long orderId = createOrder(o);
 
+        Order fetchedOrder = ordersClient.getOrder(orderId);
+        verify(ordersProducer).orderCreated(
+                eq(orderId),
+                eq(templateOrderRequest()),
+                eq(fetchedOrder.getDateCreated())
+        );
 
         HttpResponse<Customer> response = ordersClient.getOrderCustomer(orderId);
         assertEquals(HttpStatus.OK, response.getStatus());
@@ -312,6 +348,11 @@ public class OrdersControllerTest {
         when(mock.priceCalculator(null)).thenReturn(HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR));
 
         return mock;
+    }
+
+    @MockBean(OrdersProducer.class)
+    public OrdersProducer getOrdersProducer() {
+        return mock(OrdersProducer.class);
     }
 
 }

@@ -8,9 +8,11 @@ import io.micronaut.http.annotation.*;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import uk.ac.york.eng2.products.domain.OrdersByDay;
 import uk.ac.york.eng2.products.domain.Product;
 import uk.ac.york.eng2.products.domain.Tag;
 import uk.ac.york.eng2.products.dto.ProductCreateDTO;
+import uk.ac.york.eng2.products.repository.OrdersByDayRepository;
 import uk.ac.york.eng2.products.repository.ProductRepository;
 import uk.ac.york.eng2.products.repository.TagRepository;
 
@@ -27,6 +29,9 @@ public class ProductsController {
 
     @Inject
     private TagRepository tagRepository;
+
+    @Inject
+    private OrdersByDayRepository ordersByDayRepository;
 
     private record ProductTag (Tag tag, Product product) {}
 
@@ -73,6 +78,19 @@ public class ProductsController {
         List<Tag> tags = tagRepository.findByProductsId(id);
         return HttpResponse.ok(tags);
     }
+
+    // List all OrdersByDay of product (by id)
+    @Get ("/{id}/ordersByDay")
+    public HttpResponse<List<OrdersByDay>> getProductOrdersByDay(@PathVariable Long id) {
+        Optional<Product> product = productRepository.findById(id);
+        if (product.isEmpty()) {
+            throw new HttpStatusException(HttpStatus.NOT_FOUND, "Product not found");
+        }
+
+        List<OrdersByDay> ordersByDay = ordersByDayRepository.findByProductId(id);
+        return HttpResponse.ok(ordersByDay);
+    }
+
 
     // Create a new product
     @Post

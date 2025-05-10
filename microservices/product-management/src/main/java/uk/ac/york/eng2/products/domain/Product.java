@@ -25,6 +25,10 @@ public class Product {
     @ManyToMany
     private Set<Tag> tags = new HashSet<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy="product")
+    private Set<OrdersByDay> ordersByDay = new HashSet<>();
+
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -38,4 +42,7 @@ public class Product {
     public Set<Tag> getTags() { return tags; }
 //    public void setTags(Set<Tag> tags) { this.tags = tags; }
 //  Tags are added or removed individually rather than replacing the entire set
+
+    public Set<OrdersByDay> getOrdersByDay() { return ordersByDay; }
+//    public void setOrdersByDay(Set<OrdersByDay> ordersByDay) { this.ordersByDay = ordersByDay; }
 }
