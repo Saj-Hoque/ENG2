@@ -10,5 +10,6 @@ import java.util.List;
 public interface OrderItemRepository extends PageableRepository<OrderItem, Long> {
 
     List<OrderItem> findByOrderId(Long orderId);
+    void deleteByOrderId(Long productId);
 
 }

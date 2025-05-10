@@ -3,19 +3,25 @@ package uk.ac.york.eng2.products.resources;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.test.annotation.MockBean;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uk.ac.york.eng2.products.domain.OrdersByDay;
 import uk.ac.york.eng2.products.domain.Product;
 import uk.ac.york.eng2.products.domain.Tag;
 import uk.ac.york.eng2.products.dto.ProductCreateDTO;
+import uk.ac.york.eng2.products.events.OrdersByDayConsumer;
+import uk.ac.york.eng2.products.repository.OrdersByDayRepository;
 import uk.ac.york.eng2.products.repository.ProductRepository;
 import uk.ac.york.eng2.products.repository.TagRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 
 @MicronautTest(transactional = false)
@@ -30,10 +36,15 @@ public class ProductsControllerTest {
     @Inject
     private TagRepository tagRepository;
 
+    @Inject
+    private OrdersByDayRepository ordersByDayRepository;
+
     @BeforeEach
     public void setup() {
+        ordersByDayRepository.deleteAll();
         productRepository.deleteAll();
         tagRepository.deleteAll();
+
     }
 
     // Helper method - creates a product and returns generated product id
@@ -188,4 +199,36 @@ public class ProductsControllerTest {
         HttpResponse removeResponse = productsClient.removeProductTag(1L, tag.getId());
         assertEquals(HttpStatus.NOT_FOUND, removeResponse.getStatus());
     }
+
+    // Test listing ordersByDay of a product, retrieve ordersByDay to verify product is updated accordingly
+    @Test
+    public void listOrdersByDay() {
+        Product product = new Product();
+        product.setName("Test");
+        product.setUnitPrice(1.0F);
+        product = productRepository.save(product);
+
+        assertEquals(0, productsClient.getProductOrdersByDay(product.getId()).body().size());
+
+        OrdersByDay ordersByDay = new OrdersByDay();
+        ordersByDay.setDay(LocalDate.now());
+        ordersByDay.setCount(1);
+        ordersByDay.setProduct(product);
+        ordersByDay = ordersByDayRepository.save(ordersByDay);
+
+        HttpResponse<List<OrdersByDay>> response = productsClient.getProductOrdersByDay(product.getId());
+        List<OrdersByDay> listOfOrdersByDays = response.body();
+        assertEquals(1, listOfOrdersByDays.size());
+        assertEquals(ordersByDay.getId(), listOfOrdersByDays.get(0).getId());
+
+    }
+
+    // Test listing ordersByDay of non-existing product
+    @Test
+    public void listOrdersByDayMissingProduct() {
+        HttpResponse<List<OrdersByDay>> response = productsClient.getProductOrdersByDay(123L);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+    }
+
+
 }

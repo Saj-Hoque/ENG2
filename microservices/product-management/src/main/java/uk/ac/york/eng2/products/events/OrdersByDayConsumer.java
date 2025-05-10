@@ -8,42 +8,41 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import uk.ac.york.eng2.products.domain.OrdersByDay;
 import uk.ac.york.eng2.products.domain.Product;
-import uk.ac.york.eng2.products.dto.OrderRequestDTO;
 import uk.ac.york.eng2.products.repository.OrdersByDayRepository;
 import uk.ac.york.eng2.products.repository.ProductRepository;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @KafkaListener(
         groupId="order-created",
         threads = 3,
         offsetReset = OffsetReset.EARLIEST)
-public class ProductByDayOrderCreatedConsumer {
+public class OrdersByDayConsumer {
 
     @Inject
     private OrdersByDayRepository ordersByDayRepository;
 
     @Inject
-    private ProductByDayOrderCreatedProducer producer;
-    @Inject
     private ProductRepository productRepository;
 
-    @Topic("order-created")
-    public void orderCreatedEvent(@KafkaKey Long orderId, OrderRequestDTO orderRequest, LocalDate day) {
-        // we funnel all order-created events into a product-day topic
-        for (OrderRequestDTO.ProductOrder productOrder : orderRequest.getOrder()) {
-            producer.orderCreated(productOrder.getProductId(), day);
-        }
-    }
-
     @Transactional
-    @Topic(ProductByDayOrderCreatedFactory.TOPIC_PRODUCT_BY_DAY_ORDER_CREATED)
-    public void updateOrdersByDay(@KafkaKey Long productId, LocalDate day) {
-        Product product = productRepository.findById(productId).orElse(null);
+    @Topic("order-created")
+    public void updateOrdersByDay(@KafkaKey Long productId, String dayString) {
+        LocalDate day = LocalDate.parse(dayString);
+        // day isn't verified as this is generated
+
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+        if (optionalProduct.isEmpty()) {
+            // Normally here, we would log that we received an order-created event with an unknown productId
+            // This is likely not to trigger as productIds are verified previously through the use of the priceCalculator.
+            return; // Hence for safety, we just skip processing
+        }
+        Product product = optionalProduct.get();
+
         OrdersByDay ordersByDay = ordersByDayRepository.findByProductIdAndDay(productId, day).orElse(new OrdersByDay(
                 product, day, 0));
         ordersByDay.setCount(ordersByDay.getCount() + 1);
         ordersByDayRepository.save(ordersByDay);
     }
-
 }

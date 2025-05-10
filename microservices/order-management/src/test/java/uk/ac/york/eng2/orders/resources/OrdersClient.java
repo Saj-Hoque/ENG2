@@ -5,6 +5,7 @@ import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.annotation.Client;
 import uk.ac.york.eng2.orders.domain.Customer;
 import uk.ac.york.eng2.orders.domain.Order;
+import uk.ac.york.eng2.orders.domain.OrderItem;
 import uk.ac.york.eng2.orders.dto.OrderCreateDTO;
 import uk.ac.york.eng2.orders.dto.OrderUpdateDTO;
 
@@ -21,6 +22,9 @@ public interface OrdersClient {
 
     @Get("/{id}/customer")
     HttpResponse<Customer> getOrderCustomer(@PathVariable Long id);
+
+    @Get("/{id}/orderItems")
+    HttpResponse<List<OrderItem>> getOrderItems(@PathVariable Long id);
 
     @Post
     HttpResponse<Void> createOrder(@Body OrderCreateDTO dto);

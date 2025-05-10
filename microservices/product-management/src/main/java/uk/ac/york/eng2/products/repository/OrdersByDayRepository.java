@@ -13,5 +13,6 @@ public interface OrdersByDayRepository extends PageableRepository<OrdersByDay, L
 
     Optional<OrdersByDay> findByProductIdAndDay(Long productId, LocalDate day);
     List<OrdersByDay> findByProductId(Long productId);
+    List<OrdersByDay> findByDay(LocalDate day);
 
 }

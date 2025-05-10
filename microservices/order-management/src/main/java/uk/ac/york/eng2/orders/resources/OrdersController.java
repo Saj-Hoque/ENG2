@@ -11,19 +11,25 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import uk.ac.york.cs.eng2.products.api.PricingApi;
 import uk.ac.york.cs.eng2.products.model.OrderRequestDTO;
+import uk.ac.york.cs.eng2.products.model.OrderRequestDTOProductOrder;
 import uk.ac.york.cs.eng2.products.model.OrderResponseDTO;
+import uk.ac.york.cs.eng2.products.model.OrderResponseDTOProductPrice;
 import uk.ac.york.eng2.orders.domain.Customer;
 import uk.ac.york.eng2.orders.domain.Order;
+import uk.ac.york.eng2.orders.domain.OrderItem;
 import uk.ac.york.eng2.orders.dto.OrderCreateDTO;
 import uk.ac.york.eng2.orders.dto.OrderUpdateDTO;
 import uk.ac.york.eng2.orders.events.OrdersProducer;
 import uk.ac.york.eng2.orders.repository.CustomerRepository;
+import uk.ac.york.eng2.orders.repository.OrderItemRepository;
 import uk.ac.york.eng2.orders.repository.OrderRepository;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @io.swagger.v3.oas.annotations.tags.Tag(name="orders")
 @Controller(OrdersController.PREFIX)
@@ -38,6 +44,8 @@ public class OrdersController {
     private PricingApi pricingApi;
     @Inject
     private OrdersProducer ordersProducer;
+    @Inject
+    private OrderItemRepository orderItemRepository;
 
 
     // List all orders
@@ -65,6 +73,19 @@ public class OrdersController {
         return HttpResponse.ok(customer);
     }
 
+    @Get("/{id}/orderItems")
+    public HttpResponse<List<OrderItem>> getOrderItems(@PathVariable Long id) {
+
+        Optional<Order> order = orderRepository.findById(id);
+        if (order.isEmpty()) {
+            throw new HttpStatusException(HttpStatus.NOT_FOUND, "Order not found");
+        }
+        // If the order exists, return the order items associated with the order
+        List<OrderItem> orderItems = orderItemRepository.findByOrderId(id);
+        return HttpResponse.ok(orderItems);
+
+    }
+
     // Create a new order
     @Post
     @ExecuteOn(TaskExecutors.BLOCKING)
@@ -86,6 +107,15 @@ public class OrdersController {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Customer id must be provided");
         }
 
+        Set<Long> uniqueProductIds = new HashSet<>();
+        for (OrderRequestDTOProductOrder productOrder : dto.getOrderRequest().getOrder()) {
+            if (!uniqueProductIds.add(productOrder.getProductId())) {
+                // Duplicate productId detected
+                throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Duplicate productId found: " + productOrder.getProductId() + ". Please group quantities before submitting.");
+            }
+        }
+
+
         // Calculate totalAmount by invoking PM (OpenAPI)
         OrderRequestDTO request = dto.getOrderRequest();
         HttpResponse<OrderResponseDTO> response = pricingApi.priceCalculator(request);
@@ -96,10 +126,20 @@ public class OrdersController {
         order.setTotalAmount(response.body().getOrderTotalPrice());
         order = orderRepository.save(order);
 
-        // Update OrderItem
-        // TODO:
-        ordersProducer.orderCreated(order.getId(), request, order.getDateCreated());
+        // Update OrderItem data according to response
+        for (OrderResponseDTOProductPrice productPrice : response.body().getProductPrices()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setProductId(productPrice.getProductId());
+            orderItem.setQuantity(productPrice.getQuantity());
+            orderItem.setUnitPrice(productPrice.getUnitPrice());
+            orderItemRepository.save(orderItem);
+        }
 
+        // Send order-created event to PM through Kafka
+        for (OrderRequestDTOProductOrder productOrder : request.getOrder()) {
+            ordersProducer.orderCreated(productOrder.getProductId(), order.getDateCreated().toString());
+        }
 
         return HttpResponse.created(URI.create(PREFIX + "/" + order.getId()));
     }
@@ -124,6 +164,7 @@ public class OrdersController {
     public void deleteOrder(@PathVariable Long id) {
         if (orderRepository.existsById(id)) {
             orderRepository.deleteById(id);
+            orderItemRepository.deleteByOrderId(id);
         } else {
             throw new HttpStatusException(HttpStatus.NOT_FOUND, "Order not found");
         }

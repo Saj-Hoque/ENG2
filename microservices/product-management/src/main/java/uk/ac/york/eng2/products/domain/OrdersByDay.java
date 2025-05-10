@@ -14,7 +14,8 @@ public class OrdersByDay {
     @GeneratedValue
     private Long id;
 
-    @JsonIgnore
+    // Without the Product context, OrdersByDay is incomplete — the count only makes sense attached to which product it’s about
+    // Hence no JsonIgnore
     @ManyToOne
     private Product product;
 

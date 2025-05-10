@@ -3,6 +3,7 @@ package uk.ac.york.eng2.products.resources;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.annotation.Client;
+import uk.ac.york.eng2.products.domain.OrdersByDay;
 import uk.ac.york.eng2.products.domain.Product;
 import uk.ac.york.eng2.products.domain.Tag;
 import uk.ac.york.eng2.products.dto.ProductCreateDTO;
@@ -20,6 +21,9 @@ public interface ProductsClient {
 
     @Get("/{id}/tags")
     HttpResponse<List<Tag>> getProductTags(@PathVariable Long id);
+
+    @Get ("/{id}/ordersByDay")
+    HttpResponse<List<OrdersByDay>> getProductOrdersByDay(@PathVariable Long id);
 
     @Post
     HttpResponse<Void> createProduct(@Body ProductCreateDTO dto);
