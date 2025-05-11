@@ -25,6 +25,16 @@ public class OrdersByDay {
     @Column
     private Integer count;
 
+    public OrdersByDay() {
+        // no-arg constructor
+    }
+
+    public OrdersByDay(Product product, LocalDate day, Integer count) {
+        this.product = product;
+        this.day = day;
+        this.count = count;
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

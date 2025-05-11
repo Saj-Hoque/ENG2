@@ -21,6 +21,7 @@ import static org.awaitility.Awaitility.await;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -100,7 +101,7 @@ public class OrderWorkflowTest {
         await().atMost(Duration.ofSeconds(20)).until(OrdersByDayIsUpdated());
 
         OrdersByDay ordersByDay = ordersByDayApi.getOrdersByDay().body().get(0);
-        assertEquals(LocalDate.now(), ordersByDay.getDay());
+        assertEquals(LocalDate.now(ZoneOffset.UTC), ordersByDay.getDay());
         assertEquals(1, ordersByDay.getCount());
         assertEquals(productId, ordersByDay.getProduct().getId());
 
@@ -125,7 +126,9 @@ public class OrderWorkflowTest {
         assertEquals(orderItemsOrderDetails.getId(), orderDetails.getId());
 
         // Verify order details against priceCalculator calculated values
-        HttpResponse<@Valid OrderResponseDTO> orderResponseDTO = pricingApi.priceCalculator(orderRequest);
+
+        uk.ac.york.cs.eng2.products.model.OrderRequestDTO orderRequestClone = changeOrderRequestType(orderRequest);
+        HttpResponse<OrderResponseDTO> orderResponseDTO = pricingApi.priceCalculator(orderRequestClone);
         assertEquals(HttpStatus.OK, orderResponse.getStatus());
         OrderResponseDTO priceCalculatorResponse = orderResponseDTO.body();
 
@@ -142,6 +145,27 @@ public class OrderWorkflowTest {
             }
             return false;
         };
+    }
+
+
+    // Change OrderRequestDTO from order.model to OrderRequestDTO product.model
+    private uk.ac.york.cs.eng2.products.model.OrderRequestDTO changeOrderRequestType(OrderRequestDTO request){
+        uk.ac.york.cs.eng2.products.model.OrderRequestDTO updatedRequest = new uk.ac.york.cs.eng2.products.model.OrderRequestDTO();
+
+        List<uk.ac.york.cs.eng2.products.model.OrderRequestDTOProductOrder> updatedProductOrders = new ArrayList<>();
+
+        for (OrderRequestDTOProductOrder productOrder : request.getOrder()) {
+            uk.ac.york.cs.eng2.products.model.OrderRequestDTOProductOrder updatedProductOrder =
+                    new uk.ac.york.cs.eng2.products.model.OrderRequestDTOProductOrder();
+
+            updatedProductOrder.setProductId(productOrder.getProductId());
+            updatedProductOrder.setQuantity(productOrder.getQuantity());
+
+            updatedProductOrders.add(updatedProductOrder);
+        }
+
+        updatedRequest.setOrder(updatedProductOrders);
+        return updatedRequest;
     }
 
 
