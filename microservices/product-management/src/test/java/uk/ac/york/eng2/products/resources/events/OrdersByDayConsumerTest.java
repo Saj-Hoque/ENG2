@@ -13,9 +13,7 @@ import uk.ac.york.eng2.products.repository.ProductRepository;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+
 
 @MicronautTest(transactional = false)
 public class OrdersByDayConsumerTest {
@@ -32,9 +30,8 @@ public class OrdersByDayConsumerTest {
 
     @BeforeEach
     public void setup() {
-
-        productRepository.deleteAll();
         repository.deleteAll();
+        productRepository.deleteAll();
     }
 
 

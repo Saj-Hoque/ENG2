@@ -67,7 +67,6 @@ public class OrderItemsControllerTest {
         orderItem.setOrder(order);
         orderItem.setQuantity(1);
         orderItem.setUnitPrice(1.0F);
-        orderItem.setOrder(order);
         orderItem = orderItemRepository.save(orderItem);
 
         assertEquals(1, orderItemsClient.getOrderItems().size());
@@ -97,7 +96,6 @@ public class OrderItemsControllerTest {
         orderItem.setOrder(order);
         orderItem.setQuantity(1);
         orderItem.setUnitPrice(1.0F);
-        orderItem.setOrder(order);
         orderItem = orderItemRepository.save(orderItem);
 
         OrderItem fetchedOrderItem = orderItemsClient.getOrderItem(orderItem.getId());
@@ -131,7 +129,6 @@ public class OrderItemsControllerTest {
         orderItem.setOrder(order);
         orderItem.setQuantity(1);
         orderItem.setUnitPrice(1.0F);
-        orderItem.setOrder(order);
         orderItem = orderItemRepository.save(orderItem);
 
         HttpResponse<Order> response = orderItemsClient.getOrderItemOrder(orderItem.getId());
