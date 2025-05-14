@@ -1,6 +1,4 @@
-// You should customise the URI, replacing 202425 with your examination number.
-//
-// You will need to set the namespaceURI in the uk.ac.york.cs.eng2.offers.evl/plugin.xml to the same URI.
+// Keep the namespace URI as is. Submissions should be anonymous.
 
 @namespace(uri="http://cs.york.ac.uk/eng2/202425/offers", prefix="dis")
 package offers;
@@ -9,6 +7,118 @@ package offers;
 //
 // You may want to delete the old generated code in src/ before generating code from the .genmodel.
 
-class Model {
-	
+class Offers {
+	val Catalog catalog;
+	val Rule[*] rules;
+}
+
+class Catalog {
+	val Product[*] products;	
+	val Category[*] categories;
+	val Tag[*] tags;
+}
+
+class Product {
+	attr String name;
+	attr Float price;
+	ref Category[*]#products categories; // opposite: Category.products
+	ref Tag[*] tags;	
+}
+
+class Category {
+	attr String name;
+	ref Category[*] subcategories;
+	ref Product[*]#categories products; // opposite: Product.categories
+}
+
+class Tag {
+	attr String name; 
+}
+
+
+
+// Rules
+class Rule {
+	attr String name;
+	ref Condition[*] conditions;
+	ref Action[*] actions;
+	val Trigger[*] triggers;
+}
+
+
+
+
+
+// Conditions
+abstract class Condition {
+	attr String name;
+}
+
+class ProductOrderQuantityCondition extends Condition {
+	ref Product product;
+	attr Integer dailyOrders; // Number of orders of associated product in the day
+}
+
+class ProductTagCondition extends Condition {
+	ref Tag[*] tag;
+	attr Integer minQuantity;
+}
+
+class MinimumOrderAmountCondition extends Condition {
+	attr Float minimumAmount;
+}
+
+class DateCondition extends Condition {
+	attr String date;
+}
+
+
+
+
+
+// Actions
+
+class ProductQuantity {		// Helper Function for Actions (involving Product and Quantity)
+	ref Product product;
+	attr Integer quantity;
+}
+
+abstract class Action {
+	attr String name;
+}
+
+class BundlePriceAction extends Action {
+	val ProductQuantity[*] items;
+	attr Float bundlePrice;
+}
+
+class PercentageDiscountProductAction extends Action {
+	val ProductQuantity item;
+	attr Float percentage;
+}
+
+class PercentageDiscountTagAction extends Action {
+    ref Tag[*] tags;
+    attr Float percentage;
+}
+
+class PercentageDiscountTotalAction extends Action {
+	attr Float percentage;
+}
+
+class FixedDiscountAction extends Action {
+	attr Float amount;
+}
+
+
+// Triggers
+class Trigger {
+	attr TriggerType type;
+	ref Rule triggeredRule;
+}
+
+enum TriggerType {
+	IF_MATCH;
+	IF_NOT_MATCH;
+	ALWAYS;
 }

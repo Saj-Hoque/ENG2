@@ -28,6 +28,12 @@ services:
       timeout: 10s
       retries: 3
 
+  # Web-based UI for MariaDB, available from http://localhost:9000
+  adminer:
+    image: adminer:4-standalone
+    ports:
+      - 9000:8080
+
   # Web-based UI for Kafka (this time on http://localhost:9001)
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
