@@ -3,7 +3,7 @@
 <plugin>
   <extension point="org.eclipse.sirius.componentization">
     <component class="uk.ac.york.cs.eng2.offers.viewpoint.Activator"
-               id="uk.ac.york.cs.eng2.discounts.viewpoint"
+               id="uk.ac.york.cs.eng2.offers.viewpoint"
 	       name="viewpoint">
     </component>
   </extension>

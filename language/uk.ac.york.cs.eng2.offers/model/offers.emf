@@ -1,11 +1,5 @@
-// Keep the namespace URI as is. Submissions should be anonymous.
-
 @namespace(uri="http://cs.york.ac.uk/eng2/202425/offers", prefix="dis")
 package offers;
-
-// Placeholder class to generate some code - replace from here on with your metamodel.
-//
-// You may want to delete the old generated code in src/ before generating code from the .genmodel.
 
 class Offers {
 	val Catalog catalog;
@@ -13,7 +7,7 @@ class Offers {
 }
 
 class Catalog {
-	val Product[*] products;	
+	val Product[*] products;
 	val Category[*] categories;
 	val Tag[*] tags;
 }
@@ -21,42 +15,35 @@ class Catalog {
 class Product {
 	attr String name;
 	attr Float price;
-	ref Category[*]#products categories; // opposite: Category.products
-	ref Tag[*] tags;	
+	ref Category[*]#products categories;
+	ref Tag[*] tags;
 }
 
 class Category {
 	attr String name;
-	ref Category[*] subcategories;
-	ref Product[*]#categories products; // opposite: Product.categories
+	val Category[*] subcategories;
+	ref Product[*]#categories products;
 }
 
 class Tag {
-	attr String name; 
+	attr String name;
 }
 
-
-
-// Rules
 class Rule {
 	attr String name;
-	ref Condition[*] conditions;
-	ref Action[*] actions;
+	attr String description;
+	val Condition[*] conditions;
+	val Action[*] actions;
 	val Trigger[*] triggers;
 }
 
-
-
-
-
-// Conditions
 abstract class Condition {
 	attr String name;
 }
 
 class ProductOrderQuantityCondition extends Condition {
 	ref Product product;
-	attr Integer dailyOrders; // Number of orders of associated product in the day
+	attr Integer dailyOrders;
 }
 
 class ProductTagCondition extends Condition {
@@ -65,21 +52,17 @@ class ProductTagCondition extends Condition {
 }
 
 class MinimumOrderAmountCondition extends Condition {
-	attr Float minimumAmount;
+	attr Float minAmount;
 }
 
 class DateCondition extends Condition {
-	attr String date;
+	attr Integer month;
+	attr Integer day;
 }
 
-
-
-
-
-// Actions
-
-class ProductQuantity {		// Helper Function for Actions (involving Product and Quantity)
-	ref Product product;
+class TagQuantity {
+	attr String name;
+	ref Tag[*] tags;
 	attr Integer quantity;
 }
 
@@ -88,18 +71,18 @@ abstract class Action {
 }
 
 class BundlePriceAction extends Action {
-	val ProductQuantity[*] items;
+	val TagQuantity[*] items;
 	attr Float bundlePrice;
 }
 
-class PercentageDiscountProductAction extends Action {
-	val ProductQuantity item;
+class PercentageDiscountPerProductAction extends Action {
+	ref Product product;
 	attr Float percentage;
 }
 
-class PercentageDiscountTagAction extends Action {
-    ref Tag[*] tags;
-    attr Float percentage;
+class PercentageDiscountOnTaggedQuantityAction extends Action {
+	val TagQuantity items;
+	attr Float percentage;
 }
 
 class PercentageDiscountTotalAction extends Action {
@@ -110,15 +93,14 @@ class FixedDiscountAction extends Action {
 	attr Float amount;
 }
 
-
-// Triggers
 class Trigger {
 	attr TriggerType type;
 	ref Rule triggeredRule;
 }
 
 enum TriggerType {
-	IF_MATCH;
-	IF_NOT_MATCH;
-	ALWAYS;
+	IF_MATCH = 0;
+	IF_NOT_MATCH = 1;
+	ALWAYS = 2;
 }
+

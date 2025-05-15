@@ -26,3 +26,4 @@ replay_pid*
 
 # Mac temp files
 .DS_Store
+/.metadata/

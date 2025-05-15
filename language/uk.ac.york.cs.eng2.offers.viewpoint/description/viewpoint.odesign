@@ -1,2 +1,131 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<description:Group xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:description="http://www.eclipse.org/sirius/description/1.1.0" name="viewpoint" version="12.0.0.2017041100"/>
+<description:Group xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:description="http://www.eclipse.org/sirius/description/1.1.0" xmlns:description_1="http://www.eclipse.org/sirius/diagram/description/1.1.0" xmlns:style="http://www.eclipse.org/sirius/diagram/description/style/1.1.0" name="viewpoint" version="12.0.0.2017041100">
+  <ownedViewpoints name="MyViewpoint" modelFileExtension="offers">
+    <ownedRepresentations xsi:type="description_1:DiagramDescription" name="offers.diagrams.offerSystem" label="Offer System Diagram" domainClass="offers::Offers" enablePopupBars="true">
+      <metamodel href="../../uk.ac.york.cs.eng2.offers/model/offers.ecore#/"/>
+      <defaultLayer name="Default">
+        <edgeMappings name="offers.offerSystem.edges.tags" label="Tag edge" sourceMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.catalog']/@subNodeMappings[name='offers.offerSystem.containers.catalog.nodes.product']" targetMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.catalog']/@subNodeMappings[name='offers.offerSystem.containers.catalog.nodes.tag']" targetFinderExpression="feature:tags">
+          <style lineStyle="dot" sourceArrow="InputArrow" targetArrow="NoDecoration" sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <centerLabelStyleDescription labelSize="12">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+        <edgeMappings name="offers.offerSystem.edges.subcategories" label="Subcategory edge" sourceMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.catalog']/@subNodeMappings[name='offers.offerSystem.containers.catalog.nodes.category']" targetMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.catalog']/@subNodeMappings[name='offers.offerSystem.containers.catalog.nodes.category']" targetFinderExpression="feature:subcategories">
+          <style sourceArrow="InputArrow" targetArrow="NoDecoration" sizeComputationExpression="4" routingStyle="tree">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <centerLabelStyleDescription labelSize="12">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+        <edgeMappings name="offers.offerSystem.edges.categories" label="Category edge" sourceMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.catalog']/@subNodeMappings[name='offers.offerSystem.containers.catalog.nodes.product']" targetMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.catalog']/@subNodeMappings[name='offers.offerSystem.containers.catalog.nodes.category']" targetFinderExpression="feature:categories">
+          <style sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <centerLabelStyleDescription labelSize="12">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+        <edgeMappings name="offers.offerSystem.edges.triggers" label="Triggers edge" semanticCandidatesExpression="aql:self.rules.triggers" sourceMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.rules']" targetMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.rules']" targetFinderExpression="feature:triggeredRule" sourceFinderExpression="aql:self.eContainer()" domainClass="offers::Trigger" useDomainElement="true">
+          <style sizeComputationExpression="3">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <centerLabelStyleDescription labelSize="12" labelExpression="aql:self.type">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+        <edgeMappings name="offers.offerSystem.edges.ConditionTag" label="ConditionTag Edge" sourceMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.rules']/@subNodeMappings[name='offers.offerSystem.containers.rules.nodes.condition']" targetMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.catalog']/@subNodeMappings[name='offers.offerSystem.containers.catalog.nodes.tag']" targetFinderExpression="aql:self.tag">
+          <style lineStyle="dash" sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='light_red']"/>
+            <centerLabelStyleDescription labelSize="12">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+        <edgeMappings name="offers.offerSystem.edges.ActionTag" label="ActionTag Node" sourceMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.rules']/@subNodeMappings[name='offers.offerSystem.containers.rules.nodes.action']" targetMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.catalog']/@subNodeMappings[name='offers.offerSystem.containers.catalog.nodes.tag']" targetFinderExpression="aql:self.items.tags">
+          <style lineStyle="dash" sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='green']"/>
+            <centerLabelStyleDescription labelSize="12">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+        <edgeMappings name="offers.offerSystem.edges.ActionProduct" label="ActionProduct Node" sourceMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.rules']/@subNodeMappings[name='offers.offerSystem.containers.rules.nodes.action']" targetMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.catalog']/@subNodeMappings[name='offers.offerSystem.containers.catalog.nodes.product']" targetFinderExpression="aql:self.product">
+          <style lineStyle="dash" sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='green']"/>
+            <centerLabelStyleDescription labelSize="12">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+        <edgeMappings name="offers.offerSystem.edges.ConditionProduct" label="ConditionProduct Node" sourceMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.rules']/@subNodeMappings[name='offers.offerSystem.containers.rules.nodes.condition']" targetMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.catalog']/@subNodeMappings[name='offers.offerSystem.containers.catalog.nodes.product']" targetFinderExpression="aql:self.product">
+          <style lineStyle="dash" sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='light_red']"/>
+            <centerLabelStyleDescription labelSize="12">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+        <containerMappings name="offers.offerSystem.containers.catalog" label="Catalog container" semanticCandidatesExpression="feature:catalog" domainClass="offers::Catalog">
+          <subNodeMappings name="offers.offerSystem.containers.catalog.nodes.product" label="Product Node" semanticCandidatesExpression="feature:products" domainClass="offers::Product">
+            <style xsi:type="style:SquareDescription" labelSize="12" iconPath="/uk.ac.york.cs.eng2.offers.edit/icons/full/obj16/Product.gif" labelPosition="node" resizeKind="NSEW">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='gray']"/>
+            </style>
+          </subNodeMappings>
+          <subNodeMappings name="offers.offerSystem.containers.catalog.nodes.tag" label="Tag Node" semanticCandidatesExpression="feature:tags" domainClass="offers::Tag">
+            <style xsi:type="style:SquareDescription" labelSize="9" iconPath="/uk.ac.york.cs.eng2.offers.edit/icons/full/obj16/Tag.gif" labelPosition="node" resizeKind="NSEW">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelFormat>italic</labelFormat>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='light_chocolate']"/>
+            </style>
+          </subNodeMappings>
+          <subNodeMappings name="offers.offerSystem.containers.catalog.nodes.category" label="Category Node" semanticCandidatesExpression="aql:self.categories->closure(c | c.subcategories)" domainClass="offers::Category">
+            <style xsi:type="style:SquareDescription" labelSize="12" iconPath="/uk.ac.york.cs.eng2.offers.edit/icons/full/obj16/Category.gif" labelPosition="node" resizeKind="NSEW">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelFormat>bold</labelFormat>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='dark_chocolate']"/>
+            </style>
+          </subNodeMappings>
+          <style xsi:type="style:FlatContainerStyleDescription" borderSizeComputationExpression="1" labelSize="20" labelExpression="aql:'Catalog (' + self.products->size() + ' products)'" iconPath="/uk.ac.york.cs.eng2.offers.edit/icons/full/obj16/Catalog.gif">
+            <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <labelFormat>bold</labelFormat>
+            <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <backgroundColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='blue']"/>
+            <foregroundColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='blue']"/>
+          </style>
+        </containerMappings>
+        <containerMappings name="offers.offerSystem.containers.rules" label="Rules container" semanticCandidatesExpression="feature:rules" domainClass="offers::Rule">
+          <subNodeMappings name="offers.offerSystem.containers.rules.nodes.condition" label="Condition Node" semanticCandidatesExpression="feature:conditions" domainClass="offers::Condition">
+            <style xsi:type="style:SquareDescription" labelSize="12" labelPosition="node" resizeKind="NSEW">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='red']"/>
+            </style>
+          </subNodeMappings>
+          <subNodeMappings name="offers.offerSystem.containers.rules.nodes.action" label="Action Node" semanticCandidatesExpression="feature:actions" domainClass="offers::Action">
+            <style xsi:type="style:SquareDescription" labelSize="12" labelPosition="node" resizeKind="NSEW">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='green']"/>
+            </style>
+          </subNodeMappings>
+          <style xsi:type="style:FlatContainerStyleDescription" borderSizeComputationExpression="1" labelSize="16" iconPath="/uk.ac.york.cs.eng2.offers.edit/icons/full/obj16/Rule.gif">
+            <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <labelFormat>bold</labelFormat>
+            <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <backgroundColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+            <foregroundColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+          </style>
+        </containerMappings>
+      </defaultLayer>
+      <backgroundColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+    </ownedRepresentations>
+    <ownedJavaExtensions qualifiedClassName="uk.ac.york.cs.eng2.offers.viewpoint.Services"/>
+  </ownedViewpoints>
+</description:Group>
