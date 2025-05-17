@@ -1,3 +1,124 @@
 // Write your EVL validation rules here.
 //
 // To run them, right-click on the Sirius diagram background and select "Validate diagram".
+
+
+// Product names must be unique
+context _Model!offers::Product {
+    constraint UniqueName {
+        check: _Model!offers::Product.all.select(p | p.name = self.name).size() == 1
+        message: "Product name '" + self.name + "' is not unique."
+    }
+}
+
+// Percentage-based discounts must be between 0 and 100
+context PercentageDiscountPerProductAction { 
+    constraint ValidPercentage {
+        check: self.percentage >= 0 and self.percentage <= 100
+        message: "Percentage discount must be between 0 and 100."
+    }
+}
+
+context PercentageDiscountOnTaggedQuantityAction { 
+    constraint ValidPercentage {
+        check: self.percentage >= 0 and self.percentage <= 100
+        message: "Percentage discount must be between 0 and 100."
+    }
+}
+
+context PercentageDiscountTotalAction { 
+    constraint ValidPercentage {
+        check: self.percentage >= 0 and self.percentage <= 100
+        message: "Percentage discount must be between 0 and 100."
+    }
+}
+
+
+
+
+// Exactly one rule is not triggered by any other rule
+
+// Pre-contextual constraint - Ensure at least one rule exists before checking that there is exactly one initial rule
+context Offers {
+    constraint AtLeastOneRuleExists {
+        check: Rule.all.size() > 0
+        message: "The model must contain at least one rule."
+    }
+}
+
+
+context Rule {
+    constraint ExactlyOneInitialRule {
+        guard: self == Rule.all.first()  // ensures this runs only once (we only need a single runthrough of all rules)
+        check: Rule.all.select( r  | _Model!offers::Trigger.all.select( t | t.triggeredRule == r).isEmpty() ).size() == 1 // Compare each rule against each triggeredRule
+        message:
+            "There must be exactly one rule that is not triggered by any other rule (the initial rule)."
+    }
+}
+
+
+
+// Each rule can only trigger at most one rule per trigger type
+context Rule {
+    constraint AtMostOneIfMatch {
+        check: self.triggers.select(t | t.type == TriggerType#IF_MATCH).size() <= 1
+        message: "A rule can have at most one 'if match' trigger."
+    }
+
+    constraint AtMostOneIfNotMatch {
+        check: self.triggers.select(t | t.type == TriggerType#IF_NOT_MATCH).size() <= 1
+        message: "A rule can have at most one 'if not match' trigger."
+    }
+
+    constraint AtMostOneAlways {
+        check: self.triggers.select(t | t.type == TriggerType#ALWAYS).size() <= 1
+        message: "A rule can have at most one 'always' trigger."
+    }
+}
+
+
+// If there is an ALWAYS Trigger used, no other trigger should be present.
+// Otherwise if an IF_MATCH OR IF_NOT_MATCH trigger (or both) is used, there should be no ALWAYS trigger present (inherent)
+
+context Rule {
+    constraint ExclusiveAlwaysTrigger {
+        check: self.triggers.select(t | t.type == TriggerType#ALWAYS).isEmpty() or
+               (self.triggers.select(t | t.type == TriggerType#IF_MATCH).isEmpty() and
+                self.triggers.select(t | t.type == TriggerType#IF_NOT_MATCH).isEmpty())
+        message: "A rule with an 'always' trigger cannot also have 'if match' or 'if not match' trigger."
+    }
+}
+
+// This constraint would need to be updated if TriggerType's were updated
+
+
+// Pre-contextual constraint - Ensure every trigger has a `name` and `triggeredRule` assigned
+context Trigger {
+	constraint triggerHasRule{
+		check: self.type.isDefined() and self.triggeredRule.isDefined()
+		message: "If a trigger is present, it must have a type and triggeredRule assigned"
+	}
+}
+
+// No dependency cycles
+context Rule {
+    constraint NoDependencyCycles {
+    	guard: Trigger.all.forAll(t | t.type.isDefined() and t.triggeredRule.isDefined()) // avoid runTime error if `triggerHasRule` fails
+        check: dependsOn(self, Set{})
+        message: "Dependency cycle detected: rule cannot (directly or indirectly) trigger itself." + self
+    }
+    
+}
+
+// Helper operation to check for dependency cycles
+operation dependsOn(currentRule : Rule, visited : Set) : Boolean {
+	if (visited.includes(currentRule.name)) return false;
+	var addedToVisited = visited.add(currentRule.name);
+	
+	if (currentRule.triggers.isEmpty()) return true;
+	
+	return currentRule.triggers.forAll(t | dependsOn(t.triggeredRule, visited.clone()));
+}
+
+
+

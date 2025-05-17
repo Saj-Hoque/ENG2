@@ -1,42 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dis:Offers
-    xmi:version="2.0"
-    xmlns:xmi="http://www.omg.org/XMI"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:dis="http://cs.york.ac.uk/eng2/202425/offers">
+<dis:Offers xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dis="http://cs.york.ac.uk/eng2/202425/offers">
   <catalog>
-    <products
-        name="Large Chocolate Cake"
-        price="10.0"
-        categories="//@catalog/@categories.0/@subcategories.0"
-        tags="//@catalog/@tags.0 //@catalog/@tags.1 //@catalog/@tags.4"/>
-    <products
-        name="Bakewell Tarts"
-        price="3.5"
-        categories="//@catalog/@categories.0/@subcategories.1"
-        tags="//@catalog/@tags.2"/>
-    <products
-        name="Large Pizza"
-        price="7.99"
-        tags="//@catalog/@tags.4 //@catalog/@tags.3"/>
-    <products
-        name="Pizza"
-        price="5.0"
-        tags="//@catalog/@tags.3"/>
-    <products
-        name="Large Ice Cream"
-        price="4.5"
-        tags="//@catalog/@tags.5 //@catalog/@tags.4"/>
-    <categories
-        name="Baked Goods">
-      <subcategories
-          name="Cakes"
-          products="//@catalog/@products.0"/>
-      <subcategories
-          name="Tarts"
-          products="//@catalog/@products.1"/>
-      <subcategories
-          name="Pies"/>
+    <products name="Large Chocolate Cake" price="10.0" categories="//@catalog/@categories.0/@subcategories.0" tags="//@catalog/@tags.0 //@catalog/@tags.1 //@catalog/@tags.4"/>
+    <products name="Bakewell Tarts" price="3.5" categories="//@catalog/@categories.0/@subcategories.1" tags="//@catalog/@tags.2"/>
+    <products name="Large Pizza" price="7.99" tags="//@catalog/@tags.4 //@catalog/@tags.3"/>
+    <products name="Pizza" price="5.0" tags="//@catalog/@tags.3"/>
+    <products name="Large Ice Cream" price="4.5" tags="//@catalog/@tags.5 //@catalog/@tags.4"/>
+    <categories name="Baked Goods">
+      <subcategories name="Cakes" products="//@catalog/@products.0"/>
+      <subcategories name="Tarts" products="//@catalog/@products.1"/>
+      <subcategories name="Pies"/>
     </categories>
     <tags name="Cake"/>
     <tags name="Chocolate"/>
@@ -45,106 +18,37 @@
     <tags name="Large"/>
     <tags name="Ice Cream"/>
   </catalog>
-  <rules name="Bakewell Tarts - First 10 Orders"
-      description="10% off from the first 10 orders of Bakewell Tarts in the day">
-    <conditions
-        xsi:type="dis:ProductOrderQuantityCondition"
-        name="(First 10 orders of Bakewell Tarts in the day?)"
-        product="//@catalog/@products.1"
-        dailyOrders="10"/>
-    <actions
-        xsi:type="dis:PercentageDiscountPerProductAction"
-        name="(10% off All Bakewell Tarts)"
-        product="//@catalog/@products.1"
-        percentage="10.0"/>
-    <triggers
-        type="ALWAYS"
-        triggeredRule="//@rules.1"/>
+  <rules name="Bakewell Tarts - First 10 Orders" description="10% off from the first 10 orders of Bakewell Tarts in the day">
+    <conditions xsi:type="dis:ProductOrderQuantityCondition" name="(First 10 orders of Bakewell Tarts in the day?)" product="//@catalog/@products.1" dailyOrders="10"/>
+    <actions xsi:type="dis:PercentageDiscountPerProductAction" name="(10% off All Bakewell Tarts)" product="//@catalog/@products.1" percentage="10.0"/>
+    <triggers type="ALWAYS" triggeredRule="//@rules.1"/>
   </rules>
-  <rules name="Pizza + Ice Cream Bundle"
-      description="2 large pizzas for 10 pounds, with one free large ice cream">
-    <conditions
-        xsi:type="dis:ProductTagCondition"
-        name="(2 &quot;Large&quot; &quot;Pizza&quot;?)"
-        tag="//@catalog/@tags.4 //@catalog/@tags.3"
-        minQuantity="2"/>
-    <conditions
-        xsi:type="dis:ProductTagCondition"
-        name="(1 &quot;Large&quot; &quot;Ice Cream&quot;?)"
-        tag="//@catalog/@tags.4 //@catalog/@tags.5"
-        minQuantity="1"/>
-    <actions
-        xsi:type="dis:BundlePriceAction"
-        name="(2 &quot;Large&quot; &quot;Pizza&quot; and 1 &quot;Large&quot; &quot;Ice Cream&quot; - Bundle Offer @ 10 GBP)"
-        bundlePrice="10.0">
-      <items
-          name="(1 &quot;Ice Cream&quot; &quot;Large&quot;)"
-          tags="//@catalog/@tags.5 //@catalog/@tags.4"
-          quantity="1"/>
-      <items
-          name="(2 &quot;Large&quot; &quot;Pizza&quot;)"
-          tags="//@catalog/@tags.4 //@catalog/@tags.3"
-          quantity="2"/>
+  <rules name="Pizza + Ice Cream Bundle" description="2 large pizzas for 10 pounds, with one free large ice cream">
+    <conditions xsi:type="dis:ProductTagCondition" name="(2 &quot;Large&quot; &quot;Pizza&quot;?)" tag="//@catalog/@tags.4 //@catalog/@tags.3" minQuantity="2"/>
+    <conditions xsi:type="dis:ProductTagCondition" name="(1 &quot;Large&quot; &quot;Ice Cream&quot;?)" tag="//@catalog/@tags.4 //@catalog/@tags.5" minQuantity="1"/>
+    <actions xsi:type="dis:BundlePriceAction" name="(2 &quot;Large&quot; &quot;Pizza&quot; and 1 &quot;Large&quot; &quot;Ice Cream&quot; - Bundle Offer @ 10 GBP)" bundlePrice="10.0">
+      <items name="(1 &quot;Ice Cream&quot; &quot;Large&quot;)" tags="//@catalog/@tags.5 //@catalog/@tags.4" quantity="1"/>
+      <items name="(2 &quot;Large&quot; &quot;Pizza&quot;)" tags="//@catalog/@tags.4 //@catalog/@tags.3" quantity="2"/>
     </actions>
-    <triggers
-        triggeredRule="//@rules.3"/>
-    <triggers
-        type="IF_NOT_MATCH"
-        triggeredRule="//@rules.2"/>
+    <triggers triggeredRule="//@rules.3"/>
+    <triggers type="IF_NOT_MATCH" triggeredRule="//@rules.2"/>
   </rules>
-  <rules name="2 For 1 Pizza"
-      description="2 pizzas for the price of 1”, but only if the above offer was not already applied">
-    <conditions
-        xsi:type="dis:ProductTagCondition"
-        name="(2 &quot;Pizza&quot;?)"
-        tag="//@catalog/@tags.3"
-        minQuantity="2"/>
-    <actions
-        xsi:type="dis:PercentageDiscountOnTaggedQuantityAction"
-        name="(50% on 2 &quot;Pizza&quot;s)"
-        percentage="50.0">
-      <items
-          name="(2 &quot;Pizza&quot;)"
-          tags="//@catalog/@tags.3"
-          quantity="2"/>
+  <rules name="2 For 1 Pizza" description="2 pizzas for the price of 1”, but only if the above offer was not already applied">
+    <conditions xsi:type="dis:ProductTagCondition" name="(2 &quot;Pizza&quot;?)" tag="//@catalog/@tags.3" minQuantity="2"/>
+    <actions xsi:type="dis:PercentageDiscountOnTaggedQuantityAction" name="(50% on 2 &quot;Pizza&quot;s)" percentage="50.0">
+      <items name="(2 &quot;Pizza&quot;)" tags="//@catalog/@tags.3" quantity="2"/>
     </actions>
-    <triggers
-        type="ALWAYS"
-        triggeredRule="//@rules.3"/>
+    <triggers type="ALWAYS" triggeredRule="//@rules.3"/>
   </rules>
-  <rules name="Christmas Day Discount"
-      description="10% discount on Christmas Day (60 GBP minimum order)">
-    <conditions
-        xsi:type="dis:MinimumOrderAmountCondition"
-        name="(60 GBP Minimum Order?)"
-        minAmount="60.0"/>
-    <conditions
-        xsi:type="dis:DateCondition"
-        name="(Christmas Day?)"
-        month="12"
-        day="25"/>
-    <actions
-        xsi:type="dis:PercentageDiscountTotalAction"
-        name="(10% Discount Over Entire Order)"
-        percentage="10.0"/>
-    <triggers
-        type="IF_NOT_MATCH"
-        triggeredRule="//@rules.4"/>
+  <rules name="Christmas Day Discount" description="10% discount on Christmas Day (60 GBP minimum order)">
+    <conditions xsi:type="dis:MinimumOrderAmountCondition" name="(60 GBP Minimum Order?)" minAmount="60.0"/>
+    <conditions xsi:type="dis:DateCondition" name="(Christmas Day?)" month="12" day="25"/>
+    <actions xsi:type="dis:PercentageDiscountTotalAction" name="(10% Discount Over Entire Order)" percentage="10.0"/>
+    <triggers type="IF_NOT_MATCH" triggeredRule="//@rules.4"/>
   </rules>
-  <rules name="5 Off Orders With Chocolate Cake"
-      description="5 pounds off on orders with chocolate cake (50 GBP minimum order)”, but only if the">
-    <conditions
-        xsi:type="dis:MinimumOrderAmountCondition"
-        name="(50 GBP Minimum Order?)"
-        minAmount="50.0"/>
-    <conditions
-        xsi:type="dis:ProductTagCondition"
-        name="(1 &quot;Chocolate&quot; &quot;Cake&quot;?)"
-        tag="//@catalog/@tags.1 //@catalog/@tags.0"
-        minQuantity="1"/>
-    <actions
-        xsi:type="dis:FixedDiscountAction"
-        name="(5 GBP Over Entire Order)"
-        amount="5.0"/>
+  <rules name="5 Off Orders With Chocolate Cake" description="5 pounds off on orders with chocolate cake (50 GBP minimum order)”, but only if the">
+    <conditions xsi:type="dis:MinimumOrderAmountCondition" name="(50 GBP Minimum Order?)" minAmount="50.0"/>
+    <conditions xsi:type="dis:ProductTagCondition" name="(1 &quot;Chocolate&quot; &quot;Cake&quot;?)" tag="//@catalog/@tags.1 //@catalog/@tags.0" minQuantity="1"/>
+    <actions xsi:type="dis:FixedDiscountAction" name="(5 GBP Over Entire Order)" amount="5.0"/>
   </rules>
 </dis:Offers>
