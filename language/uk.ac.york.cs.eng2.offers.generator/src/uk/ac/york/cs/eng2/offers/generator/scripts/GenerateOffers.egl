@@ -1,0 +1,178 @@
+import java.util.*
+
+
+public class GenerateOffers {
+	
+	[% var rules = Rule.allInstances(); %]
+	
+	public void applyOffers(Order order) {
+		List<Rule> offers = buildOffers();
+		Rule initialOffer = connectTriggers(offers);
+		if (initialOffer != null){
+			initialOffer.applyIfValid(order);
+		}
+	}
+	
+	public List<Rule> buildOffers() {
+		List<Rule> offers = new ArrayList<>();
+		
+		// Auto-Generated rules from model
+		[% for (rule in rules) {
+			var ruleVar = "rule" + rule.name.replaceAll(" ", "");
+		%]
+		Rule [%=ruleVar%] = new Rule("[%= rule.name %]");
+		[%= rule.emitConditions(ruleVar) %]
+		[%= rule.emitActions(ruleVar) %]
+		offers.add([%= ruleVar %]);	
+		
+		[%}%]
+		
+		// Custom rules
+		[%=out.startPreserve("/*", "*/", "custom-rules", true)%]
+		// Rule ruleCustom = new Rule("Custom Offer Rule");
+		// ruleCustom.addCondition(new customCondition("customParam")); 
+		// ruleCustom.addAction(new customAction("customParam"));
+		// offers.add(ruleCustom);
+		[%=out.stopPreserve()%]
+		
+		return offers;
+	}
+	
+	protected Rule connectTriggers(List<Rule> offers) {
+	
+		// Auto-Generated triggers from model
+		[% for (rule in rules) {
+			var currentRule = rule.name;
+			for (t in rule.triggers) {
+			var targetRule = t.triggeredRule.name;
+		%]
+		find(offers, "[%=currentRule%]").addTrigger(TriggerType.[%=t.type.name%], find(offers, "[%=targetRule%]"));
+		[% } } %]
+		
+		// Custom triggers
+		[%=out.startPreserve("/*", "*/", "custom-triggers", true)%]
+		// find(offers, "Custom Offer Rule").addTrigger(TriggerType.IF_MATCH, find(offers, "Custom Offer Rule 2"));
+		[%=out.stopPreserve()%]
+		
+		
+		Rule initialRule = null;
+		
+		// Custom initial rule
+		[%=out.startPreserve("/*", "*/", "custom-initial-rule", true)%]
+		// initialRule = find(offers, "Custom Offer Rule");
+		[%=out.stopPreserve()%]
+		
+		
+		// Assume the first rule in the list is the initial rule if unset
+		if (initialRule == null) {
+			initialRule = offers.isEmpty() ? null : offers.get(0);
+		}
+		
+		return initialRule;
+	}
+	
+	private Rule find(List<Rule> rulings, String name) {
+        for (Rule r : rulings) {
+            if (r.getName().equals(name)) return r;
+        }
+        return null;
+    }
+    
+}
+
+[%
+// Create Java lines to add conditions to rules
+operation Rule emitConditions(ruleVar : String) : String {
+  var result = "";
+
+  for (condition in self.conditions) {
+
+    if (condition.isTypeOf(ProductOrderQuantityCondition)) {
+      result += ruleVar + '.addCondition(new ProductOrderQuantityCondition("' +
+                condition.product.name + '", ' + condition.dailyOrders + '));\n';
+    }
+    else if (condition.isTypeOf(ProductTagCondition)) {
+      var tagStr = "";
+      for (tag in condition.tag) {
+        tagStr += '"' + tag.name + '"';
+        if (tag != condition.tag.last()) tagStr += ", ";
+      }
+      result += ruleVar + '.addCondition(new ProductTagCondition(Arrays.asList(' +
+                tagStr + '), ' + condition.minQuantity + '));\n';
+    }
+    else if (condition.isTypeOf(MinimumOrderAmountCondition)) {
+      result += ruleVar + '.addCondition(new MinimumOrderAmountCondition(' +
+                condition.minAmount + '));\n';
+    }
+    else if (condition.isTypeOf(DateCondition)) {
+      result += ruleVar + '.addCondition(new DateCondition(' +
+                condition.month + ', ' + condition.day + '));\n';
+    }
+    else {
+      result += ruleVar + '.addCondition(null); // Unknown condition\n';
+    }
+  }
+
+  return result.trim();
+}
+%]
+
+
+
+[%
+// Create Java lines to add actions to rules
+operation Rule emitActions(ruleVar : String) : String {
+  var result = "";
+
+  for (action in self.actions) {
+
+    if (action.isTypeOf(FixedDiscountAction)) {
+      result += ruleVar + '.addAction(new FixedDiscountAction(' + action.amount + '));\n';
+    }
+
+    else if (action.isTypeOf(PercentageDiscountTotalAction)) {
+      result += ruleVar + '.addAction(new PercentageDiscountTotalAction(' + action.percentage + '));\n';
+    }
+
+    else if (action.isTypeOf(PercentageDiscountPerProductAction)) {
+      result += ruleVar + '.addAction(new PercentageDiscountPerProductAction("' +
+                 action.product.name + '", ' + action.percentage + '));\n';
+    }
+
+    else if (action.isTypeOf(BundlePriceAction)) {
+      var tagQuantities = "";
+      for (tagQty in action.items) {
+        var tagList = "";
+        for (tag in tagQty.tags) {
+          tagList += '"' + tag.name + '"';
+          if (tag != tagQty.tags.last()) tagList += ", ";
+        }
+        tagQuantities += 'new TagQuantity(Arrays.asList(' + tagList + '), ' + tagQty.quantity + ')';
+        if (tagQty != action.items.last()) tagQuantities += ", ";
+      }
+      result += ruleVar + '.addAction(new BundlePriceAction(Arrays.asList(' +
+                tagQuantities + '), ' + action.bundlePrice + '));\n';
+    }
+
+    else if (action.isTypeOf(PercentageDiscountOnTaggedQuantityAction)) {
+      var tagStr = "";
+      for (tag in action.items.tags) {
+        tagStr += '"' + tag.name + '"';
+        if (tag != action.items.tags.last()) tagStr += ", ";
+      }
+      result += ruleVar + '.addAction(new PercentageDiscountOnTaggedQuantityAction(' +
+                'new TagQuantity(Arrays.asList(' + tagStr + '), ' +
+                action.items.quantity + '), ' + action.percentage + '));\n';
+    }
+
+    else {
+      result += ruleVar + '.addAction(null); // Unknown action\n';
+    }
+  }
+
+  return result.trim();
+}
+%]
+
+
+
