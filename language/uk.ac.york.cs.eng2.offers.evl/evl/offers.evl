@@ -39,17 +39,19 @@ context PercentageDiscountTotalAction {
 // Exactly one rule is not triggered by any other rule
 
 // Pre-contextual constraint - Ensure at least one rule exists before checking that there is exactly one initial rule
+
+// Enable this test if you always want an offer to be present.
+//context Offers {
+//    constraint AtLeastOneRuleExists {
+//        check: Rule.all.size() > 0
+//        message: "The model must contain at least one rule."
+//    }
+//}
+
+
 context Offers {
-    constraint AtLeastOneRuleExists {
-        check: Rule.all.size() > 0
-        message: "The model must contain at least one rule."
-    }
-}
-
-
-context Rule {
     constraint ExactlyOneInitialRule {
-        guard: self == Rule.all.first()  // ensures this runs only once (we only need a single runthrough of all rules)
+        guard: Rule.all.size() > 0  // ensures this runs only once (we only need a single runthrough of all rules)
         check: Rule.all.select( r  | _Model!offers::Trigger.all.select( t | t.triggeredRule == r).isEmpty() ).size() == 1 // Compare each rule against each triggeredRule
         message:
             "There must be exactly one rule that is not triggered by any other rule (the initial rule)."
@@ -93,6 +95,7 @@ context Rule {
 
 
 // Pre-contextual constraint - Ensure every trigger has a `name` and `triggeredRule` assigned
+// This was added because I came across an issue where I had an empty trigger (it is not necessarily required for the specification)
 context Trigger {
 	constraint triggerHasRule{
 		check: self.type.isDefined() and self.triggeredRule.isDefined()

@@ -12,7 +12,7 @@
         <description xmi:type="description_1:DiagramDescription" href="platform:/plugin/uk.ac.york.cs.eng2.offers.viewpoint/description/viewpoint.odesign#//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.catalogue']"/>
         <target xmi:type="dis:Offers" href="model.offers#/"/>
       </ownedRepresentationDescriptors>
-      <ownedRepresentationDescriptors xmi:type="viewpoint:DRepresentationDescriptor" uid="_1t-UoDGvEfCq37RShs7sig" name="Offer System" repPath="#_1t4OADGvEfCq37RShs7sig" changeId="1747842841641">
+      <ownedRepresentationDescriptors xmi:type="viewpoint:DRepresentationDescriptor" uid="_1t-UoDGvEfCq37RShs7sig" name="Offer System" repPath="#_1t4OADGvEfCq37RShs7sig" changeId="1747952887003">
         <description xmi:type="description_1:DiagramDescription" href="platform:/plugin/uk.ac.york.cs.eng2.offers.viewpoint/description/viewpoint.odesign#//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']"/>
         <target xmi:type="dis:Offers" href="model.offers#/"/>
       </ownedRepresentationDescriptors>
