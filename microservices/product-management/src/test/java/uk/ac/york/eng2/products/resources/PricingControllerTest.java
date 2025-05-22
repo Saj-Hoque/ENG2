@@ -27,7 +27,6 @@ public class PricingControllerTest {
     private ProductRepository productRepository;  // Micronaut injects a real repo, but we'll replace with a mock
 
 
-
     @BeforeEach
     public void setup() {
         productRepository.deleteAll();

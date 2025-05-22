@@ -1,16 +1,28 @@
-import java.util.*
+// Custom imports
+[%=out.startPreserve("/*", "*/", "imports", true)%]
+// import ... ;
+[%=out.stopPreserve()%]
 
+import java.util.*;
 
-public class GenerateOffers {
+@Singleton
+public class OffersGenerator {
+	
+	@Inject
+	private ProductRepository productRepository;
+
+	@Inject
+	private TagRepository tagRepository;
+
+	@Inject
+	private OrdersByDayRepository ordersByDayRepository;
 	
 	[% var rules = Rule.allInstances(); %]
-	
-	public void applyOffers(Order order) {
+	public PricedOrderDTO applyOffers(PricedOrderDTO order) {
 		List<Rule> offers = buildOffers();
 		Rule initialOffer = connectTriggers(offers);
-		if (initialOffer != null){
-			initialOffer.applyIfValid(order);
-		}
+		order = initialOffer.checkAndApply(order);
+		return order;
 	}
 	
 	public List<Rule> buildOffers() {
@@ -54,24 +66,17 @@ public class GenerateOffers {
 		// find(offers, "Custom Offer Rule").addTrigger(TriggerType.IF_MATCH, find(offers, "Custom Offer Rule 2"));
 		[%=out.stopPreserve()%]
 		
-		
-		Rule initialRule = null;
+		// Assume the first rule in the list is the initial rule
+		Rule initialRule = offers.get(0);
 		
 		// Custom initial rule
 		[%=out.startPreserve("/*", "*/", "custom-initial-rule", true)%]
 		// initialRule = find(offers, "Custom Offer Rule");
 		[%=out.stopPreserve()%]
-		
-		
-		// Assume the first rule in the list is the initial rule if unset
-		if (initialRule == null) {
-			initialRule = offers.isEmpty() ? null : offers.get(0);
-		}
-		
 		return initialRule;
 	}
 	
-	private Rule find(List<Rule> rulings, String name) {
+	public static Rule find(List<Rule> rulings, String name) {
         for (Rule r : rulings) {
             if (r.getName().equals(name)) return r;
         }
@@ -89,7 +94,7 @@ operation Rule emitConditions(ruleVar : String) : String {
 
     if (condition.isTypeOf(ProductOrderQuantityCondition)) {
       result += ruleVar + '.addCondition(new ProductOrderQuantityCondition("' +
-                condition.product.name + '", ' + condition.dailyOrders + '));\n';
+                condition.product.name + '", ' + condition.dailyOrders + ', productRepository, ordersByDayRepository));\n';
     }
     else if (condition.isTypeOf(ProductTagCondition)) {
       var tagStr = "";
@@ -98,11 +103,11 @@ operation Rule emitConditions(ruleVar : String) : String {
         if (tag != condition.tag.last()) tagStr += ", ";
       }
       result += ruleVar + '.addCondition(new ProductTagCondition(Arrays.asList(' +
-                tagStr + '), ' + condition.minQuantity + '));\n';
+                tagStr + '), ' + condition.minQuantity + ', productRepository, tagRepository));\n';
     }
     else if (condition.isTypeOf(MinimumOrderAmountCondition)) {
       result += ruleVar + '.addCondition(new MinimumOrderAmountCondition(' +
-                condition.minAmount + '));\n';
+                condition.minAmount + 'F));\n';
     }
     else if (condition.isTypeOf(DateCondition)) {
       result += ruleVar + '.addCondition(new DateCondition(' +
@@ -127,16 +132,16 @@ operation Rule emitActions(ruleVar : String) : String {
   for (action in self.actions) {
 
     if (action.isTypeOf(FixedDiscountAction)) {
-      result += ruleVar + '.addAction(new FixedDiscountAction(' + action.amount + '));\n';
+      result += ruleVar + '.addAction(new FixedDiscountAction(' + action.amount + 'F));\n';
     }
 
     else if (action.isTypeOf(PercentageDiscountTotalAction)) {
-      result += ruleVar + '.addAction(new PercentageDiscountTotalAction(' + action.percentage + '));\n';
+      result += ruleVar + '.addAction(new PercentageDiscountTotalAction(' + action.percentage + 'F));\n';
     }
 
     else if (action.isTypeOf(PercentageDiscountPerProductAction)) {
       result += ruleVar + '.addAction(new PercentageDiscountPerProductAction("' +
-                 action.product.name + '", ' + action.percentage + '));\n';
+                 action.product.name + '", ' + action.percentage + 'F, productRepository));\n';
     }
 
     else if (action.isTypeOf(BundlePriceAction)) {
@@ -147,11 +152,11 @@ operation Rule emitActions(ruleVar : String) : String {
           tagList += '"' + tag.name + '"';
           if (tag != tagQty.tags.last()) tagList += ", ";
         }
-        tagQuantities += 'new TagQuantity(Arrays.asList(' + tagList + '), ' + tagQty.quantity + ')';
+        tagQuantities += 'new TagQuantity(Arrays.asList(' + tagList + '), ' + tagQty.quantity + ', tagRepository)';
         if (tagQty != action.items.last()) tagQuantities += ", ";
       }
       result += ruleVar + '.addAction(new BundlePriceAction(Arrays.asList(' +
-                tagQuantities + '), ' + action.bundlePrice + '));\n';
+                tagQuantities + '), ' + action.bundlePrice + 'F, productRepository));\n';
     }
 
     else if (action.isTypeOf(PercentageDiscountOnTaggedQuantityAction)) {
@@ -162,7 +167,7 @@ operation Rule emitActions(ruleVar : String) : String {
       }
       result += ruleVar + '.addAction(new PercentageDiscountOnTaggedQuantityAction(' +
                 'new TagQuantity(Arrays.asList(' + tagStr + '), ' +
-                action.items.quantity + '), ' + action.percentage + '));\n';
+                action.items.quantity + ', tagRepository), ' + action.percentage + 'F, productRepository));\n';
     }
 
     else {

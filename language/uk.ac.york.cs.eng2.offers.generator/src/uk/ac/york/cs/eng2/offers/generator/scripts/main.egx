@@ -3,6 +3,6 @@
  */
 
  rule GenerateOffers {
- 	template : "GenerateOffers.egl"
- 	target : "GenerateOffers.java"
+ 	template : "OffersGenerator.egl"
+ 	target : "OffersGenerator.java"
  }

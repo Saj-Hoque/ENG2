@@ -12,7 +12,9 @@ import jakarta.inject.Inject;
 import uk.ac.york.eng2.products.domain.Product;
 import uk.ac.york.eng2.products.dto.OrderRequestDTO;
 import uk.ac.york.eng2.products.dto.OrderResponseDTO;
+import uk.ac.york.eng2.products.dto.PricedOrderDTO;
 import uk.ac.york.eng2.products.repository.ProductRepository;
+import uk.ac.york.eng2.products.services.offers.src_gen.OffersGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,12 +29,15 @@ public class PricingController {
     @Inject
     private ProductRepository productRepository;
 
+    @Inject
+    private OffersGenerator offersGenerator;
+
 
     public OrderResponseDTO calculatePricing(OrderRequestDTO request) {
 
         OrderResponseDTO response = new OrderResponseDTO();
         List<OrderResponseDTO.ProductPrice> productPrices = new ArrayList<>();
-        Float orderTotalPrice = 0f;
+        Float baseOrderTotalPrice = 0f;
 
         // Iterate through every Product in the Order Pricing Request
         for (OrderRequestDTO.ProductOrder productOrder : request.getOrder()){
@@ -47,7 +52,7 @@ public class PricingController {
             Product product = oProduct.get();
             Float unitPrice = product.getUnitPrice();
 
-            // Calculate the total price for the current product
+            // Calculate the base total price for the current product
             Float productTotalPrice = unitPrice * quantity;
 
             // Create a ProductPrice object to add to the response
@@ -60,11 +65,19 @@ public class PricingController {
             productPrices.add(productPrice);
 
             // Add product total to overall total price
-            orderTotalPrice += productTotalPrice;
+            baseOrderTotalPrice += productTotalPrice;
 
         }
 
-        response.setOrderTotalPrice(orderTotalPrice);
+        // Setup order details before applying offers
+        PricedOrderDTO orderDetails = new PricedOrderDTO();
+        orderDetails.setOrder(request);
+        orderDetails.setOrderTotal(baseOrderTotalPrice);
+
+        // Apply offers using generated logic in services/offers
+        PricedOrderDTO updatedOrderDetails = offersGenerator.applyOffers(orderDetails);
+
+        response.setOrderTotalPrice(updatedOrderDetails.getOrderTotal());
         response.setProductPrices(productPrices);
 
         return response;
@@ -73,7 +86,7 @@ public class PricingController {
 
 
 
-    // Calculate Pricing TODO:Finish this comment
+    // Calculate Pricing - Used for testing/debugging the pricing calculator - NOT FOR CUSTOMER USE
     @Post
     public HttpResponse<OrderResponseDTO> priceCalculator(@Body OrderRequestDTO request) {
 

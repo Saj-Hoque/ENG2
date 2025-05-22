@@ -21,7 +21,6 @@ public class OrdersByDayConsumerTest {
     @Inject
     private OrdersByDayConsumer consumer;
 
-
     @Inject
     private OrdersByDayRepository repository;
 

@@ -18,12 +18,12 @@
     <tags name="Large"/>
     <tags name="Ice Cream"/>
   </catalog>
-  <rules name="Bakewell Tarts - First 10 Orders" description="10% off from the first 10 orders of Bakewell Tarts in the day">
+  <rules name="Bakewell Tarts First 10 Orders" description="10% off from the first 10 orders of Bakewell Tarts in the day">
     <conditions xsi:type="dis:ProductOrderQuantityCondition" name="(First 10 orders of Bakewell Tarts in the day?)" product="//@catalog/@products.1" dailyOrders="10"/>
     <actions xsi:type="dis:PercentageDiscountPerProductAction" name="(10% off All Bakewell Tarts)" product="//@catalog/@products.1" percentage="10.0"/>
     <triggers type="ALWAYS" triggeredRule="//@rules.1"/>
   </rules>
-  <rules name="Pizza + Ice Cream Bundle" description="2 large pizzas for 10 pounds, with one free large ice cream">
+  <rules name="Pizza And Ice Cream Bundle" description="2 large pizzas for 10 pounds, with one free large ice cream">
     <conditions xsi:type="dis:ProductTagCondition" name="(2 &quot;Large&quot; &quot;Pizza&quot;?)" tag="//@catalog/@tags.4 //@catalog/@tags.3" minQuantity="2"/>
     <conditions xsi:type="dis:ProductTagCondition" name="(1 &quot;Large&quot; &quot;Ice Cream&quot;?)" tag="//@catalog/@tags.4 //@catalog/@tags.5" minQuantity="1"/>
     <actions xsi:type="dis:BundlePriceAction" name="(2 &quot;Large&quot; &quot;Pizza&quot; and 1 &quot;Large&quot; &quot;Ice Cream&quot; - Bundle Offer @ 10 GBP)" bundlePrice="10.0">

@@ -12,7 +12,7 @@
         <description xmi:type="description_1:DiagramDescription" href="platform:/plugin/uk.ac.york.cs.eng2.offers.viewpoint/description/viewpoint.odesign#//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.catalogue']"/>
         <target xmi:type="dis:Offers" href="model.offers#/"/>
       </ownedRepresentationDescriptors>
-      <ownedRepresentationDescriptors xmi:type="viewpoint:DRepresentationDescriptor" uid="_1t-UoDGvEfCq37RShs7sig" name="Offer System" repPath="#_1t4OADGvEfCq37RShs7sig" changeId="1747516064461">
+      <ownedRepresentationDescriptors xmi:type="viewpoint:DRepresentationDescriptor" uid="_1t-UoDGvEfCq37RShs7sig" name="Offer System" repPath="#_1t4OADGvEfCq37RShs7sig" changeId="1747842841641">
         <description xmi:type="description_1:DiagramDescription" href="platform:/plugin/uk.ac.york.cs.eng2.offers.viewpoint/description/viewpoint.odesign#//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']"/>
         <target xmi:type="dis:Offers" href="model.offers#/"/>
       </ownedRepresentationDescriptors>
@@ -557,17 +557,17 @@
         </edges>
         <edges xmi:type="notation:Edge" xmi:id="_1v3LAjGvEfCq37RShs7sig" type="4001" element="_1vLOjzGvEfCq37RShs7sig" source="_1vewgDGvEfCq37RShs7sig" target="_1vglvDGvEfCq37RShs7sig">
           <children xmi:type="notation:Node" xmi:id="_1v3LBjGvEfCq37RShs7sig" type="6001">
-            <layoutConstraint xmi:type="notation:Bounds" xmi:id="_1v3LBzGvEfCq37RShs7sig" x="-50" y="-3"/>
+            <layoutConstraint xmi:type="notation:Bounds" xmi:id="_1v3LBzGvEfCq37RShs7sig" x="-39" y="8"/>
           </children>
           <children xmi:type="notation:Node" xmi:id="_1v3LCDGvEfCq37RShs7sig" type="6002">
-            <layoutConstraint xmi:type="notation:Bounds" xmi:id="_1v3LCTGvEfCq37RShs7sig" x="-15" y="9"/>
+            <layoutConstraint xmi:type="notation:Bounds" xmi:id="_1v3LCTGvEfCq37RShs7sig" x="-13" y="9"/>
           </children>
           <children xmi:type="notation:Node" xmi:id="_1v3LCjGvEfCq37RShs7sig" type="6003">
-            <layoutConstraint xmi:type="notation:Bounds" xmi:id="_1v3LCzGvEfCq37RShs7sig" x="6" y="-3"/>
+            <layoutConstraint xmi:type="notation:Bounds" xmi:id="_1v3LCzGvEfCq37RShs7sig" x="8" y="-3"/>
           </children>
           <styles xmi:type="notation:ConnectorStyle" xmi:id="_1v3LAzGvEfCq37RShs7sig" routing="Tree"/>
           <styles xmi:type="notation:FontStyle" xmi:id="_1v3LBDGvEfCq37RShs7sig" fontName="Segoe UI" fontHeight="12"/>
-          <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_1v3LBTGvEfCq37RShs7sig" points="[0, 0, -95, 70]$[0, -15, -95, 55]$[147, -15, 52, 55]$[147, -34, 52, 36]"/>
+          <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_1v3LBTGvEfCq37RShs7sig" points="[0, -8, -29, 70]$[0, -29, -29, 49]$[81, -29, 52, 49]$[81, -42, 52, 36]"/>
           <sourceAnchor xmi:type="notation:IdentityAnchor" xmi:id="_1v3LDDGvEfCq37RShs7sig" id="(0.5192307692307693,0.13114754098360656)"/>
           <targetAnchor xmi:type="notation:IdentityAnchor" xmi:id="_1v3LDTGvEfCq37RShs7sig" id="(0.14150943396226415,0.45454545454545453)"/>
         </edges>
@@ -1115,7 +1115,7 @@
         <actualMapping xmi:type="description_1:NodeMapping" href="platform:/plugin/uk.ac.york.cs.eng2.offers.viewpoint/description/viewpoint.odesign#//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.catalog']/@subNodeMappings[name='offers.offerSystem.containers.catalog.nodes.category']"/>
       </ownedDiagramElements>
     </ownedDiagramElements>
-    <ownedDiagramElements xmi:type="diagram:DNodeContainer" uid="_1vAPYDGvEfCq37RShs7sig" name="Bakewell Tarts - First 10 Orders" outgoingEdges="_1vMcoDGvEfCq37RShs7sig">
+    <ownedDiagramElements xmi:type="diagram:DNodeContainer" uid="_1vAPYDGvEfCq37RShs7sig" name="Bakewell Tarts First 10 Orders" outgoingEdges="_1vMcoDGvEfCq37RShs7sig">
       <target xmi:type="dis:Rule" href="model.offers#//@rules.0"/>
       <semanticElements xmi:type="dis:Rule" href="model.offers#//@rules.0"/>
       <arrangeConstraints>KEEP_LOCATION</arrangeConstraints>
@@ -1149,7 +1149,7 @@
         <actualMapping xmi:type="description_1:NodeMapping" href="platform:/plugin/uk.ac.york.cs.eng2.offers.viewpoint/description/viewpoint.odesign#//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='offers.diagrams.offerSystem']/@defaultLayer/@containerMappings[name='offers.offerSystem.containers.rules']/@subNodeMappings[name='offers.offerSystem.containers.rules.nodes.action']"/>
       </ownedDiagramElements>
     </ownedDiagramElements>
-    <ownedDiagramElements xmi:type="diagram:DNodeContainer" uid="_1vAPYzGvEfCq37RShs7sig" name="Pizza + Ice Cream Bundle" outgoingEdges="_1vMcpTGvEfCq37RShs7sig _1vMcqjGvEfCq37RShs7sig" incomingEdges="_1vMcoDGvEfCq37RShs7sig">
+    <ownedDiagramElements xmi:type="diagram:DNodeContainer" uid="_1vAPYzGvEfCq37RShs7sig" name="Pizza And Ice Cream Bundle" outgoingEdges="_1vMcpTGvEfCq37RShs7sig _1vMcqjGvEfCq37RShs7sig" incomingEdges="_1vMcoDGvEfCq37RShs7sig">
       <target xmi:type="dis:Rule" href="model.offers#//@rules.1"/>
       <semanticElements xmi:type="dis:Rule" href="model.offers#//@rules.1"/>
       <arrangeConstraints>KEEP_LOCATION</arrangeConstraints>
